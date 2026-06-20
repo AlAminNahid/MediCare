@@ -1,0 +1,31 @@
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Appointment } from './appointment.entity';
+import { AppointmentSlot } from './appointment-slot.entity';
+import { Prescription } from './prescription.entity';
+
+@Entity('doctor')
+export class Doctor {
+  @PrimaryGeneratedColumn()
+  doctorId: number;
+
+  @Column({ length: 100 })
+  fullName: string;
+
+  @Column({ length: 20, nullable: true })
+  phoneNumber: string;
+
+  @Column({ length: 100, nullable: true })
+  specialization: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  visitFee: number;
+
+  @OneToMany(() => Appointment, (appointment) => appointment.doctor)
+  appointments: Appointment[];
+
+  @OneToMany(() => AppointmentSlot, (slot) => slot.doctor)
+  slots: AppointmentSlot[];
+
+  @OneToMany(() => Prescription, (prescription) => prescription.doctor)
+  prescriptions: Prescription[];
+}
