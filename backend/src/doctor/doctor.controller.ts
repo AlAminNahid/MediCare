@@ -40,6 +40,15 @@ export class DoctorController {
     return this.doctorService.getAppointments(req.user.doctorId);
   }
 
+  @Patch('appointments/:id')
+  updateAppointment(
+    @Request() req,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { date?: string; time?: string; status?: string; reason?: string },
+  ) {
+    return this.doctorService.updateAppointment(req.user.doctorId, id, body);
+  }
+
   @Get('patients')
   getPatients(@Request() req) {
     return this.doctorService.getPatients(req.user.doctorId);
@@ -68,6 +77,15 @@ export class DoctorController {
   @Post('slots')
   createSlot(@Request() req, @Body() dto: CreateSlotDto) {
     return this.doctorService.createSlot(req.user.doctorId, dto);
+  }
+
+  @Patch('slots/:id')
+  updateSlot(
+    @Request() req,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { startTime?: string; endTime?: string; days?: string[] },
+  ) {
+    return this.doctorService.updateSlot(id, req.user.doctorId, body);
   }
 
   @Delete('slots/:id')

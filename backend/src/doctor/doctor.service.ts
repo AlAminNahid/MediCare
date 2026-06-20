@@ -35,16 +35,16 @@ export class DoctorService {
     const doctor = await this.doctorRepo.findOne({ where: { doctorId } });
     if (!doctor) throw new NotFoundException('Doctor not found');
 
-    doctor.fullName = dto.fullName;
-    doctor.phoneNumber = dto.phoneNumber;
-    doctor.specialization = dto.specialization;
-    doctor.visitFee = dto.visitFee;
+    if (dto.fullName !== undefined) doctor.fullName = dto.fullName;
+    if (dto.phoneNumber !== undefined) doctor.phoneNumber = dto.phoneNumber;
+    if (dto.specialization !== undefined) doctor.specialization = dto.specialization;
+    if (dto.visitFee !== undefined) doctor.visitFee = dto.visitFee;
     await this.doctorRepo.save(doctor);
 
     const login = await this.loginRepo.findOne({ where: { doctorId } });
     if (login) {
-      login.email = dto.email;
-      login.password = await bcrypt.hash(dto.password, 10);
+      if (dto.email !== undefined) login.email = dto.email;
+      if (dto.password) login.password = await bcrypt.hash(dto.password, 10);
       await this.loginRepo.save(login);
     }
 
@@ -56,6 +56,16 @@ export class DoctorService {
       where: { doctorId },
       relations: { patient: true },
     });
+  }
+
+  async updateAppointment(doctorId: number, appointmentId: number, dto: { date?: string; time?: string; status?: string; reason?: string }) {
+    const appointment = await this.appointmentRepo.findOne({ where: { appointmentId, doctorId } });
+    if (!appointment) throw new NotFoundException('Appointment not found');
+    if (dto.date !== undefined) appointment.date = dto.date;
+    if (dto.time !== undefined) appointment.time = dto.time;
+    if (dto.status !== undefined) appointment.status = dto.status as any;
+    if (dto.reason !== undefined) appointment.reason = dto.reason;
+    return this.appointmentRepo.save(appointment);
   }
 
   getPatients(doctorId: number) {
@@ -89,6 +99,15 @@ export class DoctorService {
 
   async createSlot(doctorId: number, dto: CreateSlotDto) {
     const slot = this.slotRepo.create({ ...dto, doctorId });
+    return this.slotRepo.save(slot);
+  }
+
+  async updateSlot(slotId: number, doctorId: number, dto: { startTime?: string; endTime?: string; days?: string[] }) {
+    const slot = await this.slotRepo.findOne({ where: { slotId, doctorId } });
+    if (!slot) throw new NotFoundException('Slot not found');
+    if (dto.startTime !== undefined) slot.startTime = dto.startTime;
+    if (dto.endTime !== undefined) slot.endTime = dto.endTime;
+    if (dto.days !== undefined) slot.days = dto.days as any;
     return this.slotRepo.save(slot);
   }
 

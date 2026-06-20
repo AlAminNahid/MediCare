@@ -3,7 +3,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Admin } from '../entities/admin.entity';
 import { Doctor } from '../entities/doctor.entity';
@@ -27,6 +27,7 @@ export class AdminService {
     @InjectRepository(Medicine) private medicineRepo: Repository<Medicine>,
     @InjectRepository(Backup) private backupRepo: Repository<Backup>,
     @InjectRepository(Login) private loginRepo: Repository<Login>,
+    private dataSource: DataSource,
   ) {}
 
   // Dashboard stats
@@ -53,15 +54,15 @@ export class AdminService {
     const admin = await this.adminRepo.findOne({ where: { adminId } });
     if (!admin) throw new NotFoundException('Admin not found');
 
-    admin.fullName = dto.fullName;
-    admin.email = dto.email;
-    admin.phoneNumber = dto.phoneNumber;
+    if (dto.fullName !== undefined) admin.fullName = dto.fullName;
+    if (dto.email !== undefined) admin.email = dto.email;
+    if (dto.phoneNumber !== undefined) admin.phoneNumber = dto.phoneNumber;
     await this.adminRepo.save(admin);
 
     const login = await this.loginRepo.findOne({ where: { adminId } });
     if (login) {
-      login.email = dto.email;
-      login.password = await bcrypt.hash(dto.password, 10);
+      if (dto.email !== undefined) login.email = dto.email;
+      if (dto.password) login.password = await bcrypt.hash(dto.password, 10);
       await this.loginRepo.save(login);
     }
 
@@ -135,7 +136,10 @@ export class AdminService {
   }
 
   async addMedicine(dto: AddMedicineDto) {
-    const medicine = this.medicineRepo.create(dto);
+    const medicine = this.medicineRepo.create({
+      ...dto,
+      status: dto.status ?? MedicineStatus.ACTIVE,
+    });
     return this.medicineRepo.save(medicine);
   }
 
@@ -168,5 +172,54 @@ export class AdminService {
     if (!backup) throw new NotFoundException('Backup not found');
     await this.backupRepo.remove(backup);
     return { message: 'Backup deleted' };
+  }
+
+  async generateSqlDump(): Promise<string> {
+    const tables = [
+      'login',
+      'admin',
+      'doctor',
+      'patient',
+      'appointment_slot',
+      'appointment',
+      'medicine',
+      'prescription',
+      'backup',
+    ];
+
+    const lines: string[] = [
+      '-- MediCare Database Backup',
+      `-- Generated: ${new Date().toISOString()}`,
+      '--',
+      'SET client_encoding = \'UTF8\';',
+      'SET standard_conforming_strings = on;',
+      '',
+    ];
+
+    for (const table of tables) {
+      const rows: Record<string, unknown>[] = await this.dataSource.query(
+        `SELECT * FROM "${table}"`,
+      ).catch(() => []);
+
+      if (rows.length === 0) continue;
+
+      lines.push(`-- Table: ${table}`);
+      const columns = Object.keys(rows[0]);
+      const colList = columns.map((c) => `"${c}"`).join(', ');
+
+      for (const row of rows) {
+        const values = columns.map((col) => {
+          const val = row[col];
+          if (val === null || val === undefined) return 'NULL';
+          if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+          // escape single quotes in strings
+          return `'${String(val).replace(/'/g, "''")}'`;
+        }).join(', ');
+        lines.push(`INSERT INTO "${table}" (${colList}) VALUES (${values});`);
+      }
+      lines.push('');
+    }
+
+    return lines.join('\n');
   }
 }

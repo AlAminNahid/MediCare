@@ -1,0 +1,175 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { CalendarPlus, Check, Stethoscope } from 'lucide-react';
+import { api } from '@/lib/api';
+
+interface Doctor {
+  doctorId: number;
+  fullName: string;
+  specialization: string;
+  visitFee: number;
+  phoneNumber: string;
+}
+
+const empty = { doctorId: '', date: '', time: '', reason: '' };
+
+export default function BookAppointmentPage() {
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState(empty);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+
+  useEffect(() => {
+    api.patient
+      .getDoctors()
+      .then((d) => setDoctors(d as Doctor[]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleDoctorSelect = (id: string) => {
+    setForm({ ...form, doctorId: id });
+    setSelectedDoctor(doctors.find((d) => String(d.doctorId) === id) || null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      await api.patient.bookAppointment({
+        doctorId: Number(form.doctorId),
+        date: form.date,
+        time: form.time,
+        reason: form.reason,
+      });
+      setSuccess(true);
+      setForm(empty);
+      setSelectedDoctor(null);
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to book appointment');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="p-8">
+      <div className="mb-6 flex items-center gap-3">
+        <CalendarPlus className="h-6 w-6 text-indigo-600" />
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Book Appointment</h1>
+          <p className="text-sm text-slate-500">Schedule a visit with one of our doctors</p>
+        </div>
+      </div>
+
+      {success && (
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-4">
+          <Check className="h-5 w-5 text-green-600" />
+          <div>
+            <p className="font-medium text-green-800">Appointment booked successfully!</p>
+            <p className="text-sm text-green-600">You can view it in My Appointments.</p>
+          </div>
+          <button onClick={() => setSuccess(false)} className="ml-auto text-sm text-green-600 hover:underline">Dismiss</button>
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Doctor selection */}
+        <div className="lg:col-span-1">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">Available Doctors</h2>
+          {loading ? (
+            <div className="flex items-center justify-center py-10"><div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" /></div>
+          ) : (
+            <div className="space-y-3">
+              {doctors.map((doc) => (
+                <button
+                  key={doc.doctorId}
+                  onClick={() => handleDoctorSelect(String(doc.doctorId))}
+                  className={`w-full rounded-xl border p-4 text-left transition ${String(doc.doctorId) === form.doctorId ? 'border-indigo-400 bg-indigo-50 ring-2 ring-indigo-500/20' : 'border-slate-200 bg-white hover:border-indigo-300'}`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
+                      {doc.fullName.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-900">{doc.fullName}</p>
+                      <p className="text-xs text-slate-500">{doc.specialization}</p>
+                      <p className="mt-1 text-sm font-semibold text-indigo-600">৳{doc.visitFee}</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Booking form */}
+        <div className="lg:col-span-2">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">Appointment Details</h2>
+          <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+            {selectedDoctor && (
+              <div className="flex items-center gap-3 rounded-lg bg-indigo-50 p-4">
+                <Stethoscope className="h-5 w-5 text-indigo-600" />
+                <div>
+                  <p className="text-sm font-medium text-indigo-900">{selectedDoctor.fullName}</p>
+                  <p className="text-xs text-indigo-600">{selectedDoctor.specialization} · ৳{selectedDoctor.visitFee}</p>
+                </div>
+              </div>
+            )}
+
+            {error && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Date</label>
+                <input
+                  type="date"
+                  required
+                  min={new Date().toISOString().split('T')[0]}
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Time</label>
+                <input
+                  type="time"
+                  required
+                  value={form.time}
+                  onChange={(e) => setForm({ ...form, time: e.target.value })}
+                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Reason for Visit</label>
+              <textarea
+                required
+                rows={3}
+                placeholder="Describe your symptoms or reason for the visit..."
+                value={form.reason}
+                onChange={(e) => setForm({ ...form, reason: e.target.value })}
+                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm resize-none focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={saving || !form.doctorId || !form.date || !form.time}
+              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-60"
+            >
+              <CalendarPlus className="h-4 w-4" />
+              {saving ? 'Booking...' : 'Confirm Booking'}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

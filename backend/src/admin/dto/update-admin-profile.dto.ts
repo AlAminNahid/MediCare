@@ -1,16 +1,20 @@
 import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class UpdateAdminProfileDto {
+  @IsOptional()
   @IsString()
-  fullName: string;
+  fullName?: string;
 
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
+  @IsOptional()
   @IsString()
-  phoneNumber: string;
+  phoneNumber?: string;
 
+  @IsOptional()
   @IsString()
   @MinLength(6)
-  password: string;
+  password?: string;
 }

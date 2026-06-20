@@ -1,21 +1,32 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class UpdatePatientProfileDto {
-  @IsString()
-  fullName: string;
-
-  @IsString()
-  phoneNumber: string;
-
-  @IsNumber()
   @IsOptional()
+  @IsString()
+  fullName?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
+
+  @IsOptional()
+  @IsNumber()
   age?: number;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   gender?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   address?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  password?: string;
 }

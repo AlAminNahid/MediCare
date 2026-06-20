@@ -8,8 +8,10 @@ import {
   Patch,
   Post,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -122,6 +124,16 @@ export class AdminController {
   @Get('backups')
   getBackups() {
     return this.adminService.getBackups();
+  }
+
+  @Get('backups/download')
+  async downloadBackup(@Res() res: Response) {
+    const sql = await this.adminService.generateSqlDump();
+    const ts = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 15);
+    const fileName = `backup_${ts}.sql`;
+    res.setHeader('Content-Type', 'application/sql');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(sql);
   }
 
   @Post('backups')
