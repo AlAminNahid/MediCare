@@ -1,12 +1,12 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -17,7 +17,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../entities/login.entity';
 import { UpdateDoctorProfileDto } from './dto/update-doctor-profile.dto';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
-import { CreateSlotDto } from './dto/create-slot.dto';
+import { AppointmentStatus } from '../entities/appointment.entity';
 
 @Controller('doctor')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -36,15 +36,23 @@ export class DoctorController {
   }
 
   @Get('appointments')
-  getAppointments(@Request() req) {
-    return this.doctorService.getAppointments(req.user.doctorId);
+  getAppointments(
+    @Request() req,
+    @Query('chamberId') chamberId?: string,
+    @Query('date') date?: string,
+  ) {
+    return this.doctorService.getAppointments(
+      req.user.doctorId,
+      chamberId ? Number(chamberId) : undefined,
+      date,
+    );
   }
 
   @Patch('appointments/:id')
   updateAppointment(
     @Request() req,
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { date?: string; time?: string; status?: string; reason?: string },
+    @Body() body: { status?: AppointmentStatus; reason?: string },
   ) {
     return this.doctorService.updateAppointment(req.user.doctorId, id, body);
   }
@@ -67,29 +75,5 @@ export class DoctorController {
   @Get('prescriptions')
   getPrescriptions(@Request() req) {
     return this.doctorService.getPrescriptions(req.user.doctorId);
-  }
-
-  @Get('slots')
-  getSlots(@Request() req) {
-    return this.doctorService.getSlots(req.user.doctorId);
-  }
-
-  @Post('slots')
-  createSlot(@Request() req, @Body() dto: CreateSlotDto) {
-    return this.doctorService.createSlot(req.user.doctorId, dto);
-  }
-
-  @Patch('slots/:id')
-  updateSlot(
-    @Request() req,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: { startTime?: string; endTime?: string; days?: string[] },
-  ) {
-    return this.doctorService.updateSlot(id, req.user.doctorId, body);
-  }
-
-  @Delete('slots/:id')
-  deleteSlot(@Request() req, @Param('id', ParseIntPipe) id: number) {
-    return this.doctorService.deleteSlot(id, req.user.doctorId);
   }
 }

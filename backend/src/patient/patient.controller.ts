@@ -38,6 +38,11 @@ export class PatientController {
     return this.patientService.getDoctors();
   }
 
+  @Get('doctors/:doctorId/chambers')
+  getChambers(@Param('doctorId', ParseIntPipe) doctorId: number) {
+    return this.patientService.getChambers(doctorId);
+  }
+
   @Post('appointments')
   bookAppointment(@Request() req, @Body() dto: BookAppointmentDto) {
     return this.patientService.bookAppointment(req.user.patientId, dto);

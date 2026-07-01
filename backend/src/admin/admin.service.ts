@@ -8,14 +8,13 @@ import * as bcrypt from 'bcrypt';
 import { Admin } from '../entities/admin.entity';
 import { Doctor } from '../entities/doctor.entity';
 import { Patient } from '../entities/patient.entity';
-import { Appointment, AppointmentStatus } from '../entities/appointment.entity';
-import { Medicine, MedicineStatus } from '../entities/medicine.entity';
+import { Appointment } from '../entities/appointment.entity';
+import { Chamber } from '../entities/chamber.entity';
+import { Medicine } from '../entities/medicine.entity';
 import { Backup } from '../entities/backup.entity';
 import { Login } from '../entities/login.entity';
 import { UpdateAdminProfileDto } from './dto/update-admin-profile.dto';
 import { AddMedicineDto } from './dto/add-medicine.dto';
-import { EditDoctorDto } from './dto/edit-doctor.dto';
-import { EditPatientDto } from './dto/edit-patient.dto';
 
 @Injectable()
 export class AdminService {
@@ -24,6 +23,7 @@ export class AdminService {
     @InjectRepository(Doctor) private doctorRepo: Repository<Doctor>,
     @InjectRepository(Patient) private patientRepo: Repository<Patient>,
     @InjectRepository(Appointment) private appointmentRepo: Repository<Appointment>,
+    @InjectRepository(Chamber) private chamberRepo: Repository<Chamber>,
     @InjectRepository(Medicine) private medicineRepo: Repository<Medicine>,
     @InjectRepository(Backup) private backupRepo: Repository<Backup>,
     @InjectRepository(Login) private loginRepo: Repository<Login>,
@@ -32,15 +32,16 @@ export class AdminService {
 
   // Dashboard stats
   async getDashboardStats() {
-    const [totalDoctors, totalPatients, totalAppointments, totalMedicines] =
+    const [totalDoctors, totalPatients, totalChambers, totalAppointments, totalMedicines] =
       await Promise.all([
         this.doctorRepo.count(),
         this.patientRepo.count(),
+        this.chamberRepo.count(),
         this.appointmentRepo.count(),
         this.medicineRepo.count(),
       ]);
 
-    return { totalDoctors, totalPatients, totalAppointments, totalMedicines };
+    return { totalDoctors, totalPatients, totalChambers, totalAppointments, totalMedicines };
   }
 
   // Admin profile
@@ -69,84 +70,30 @@ export class AdminService {
     return { message: 'Profile updated successfully' };
   }
 
-  // Doctors
+  // Doctors (read-only oversight)
   getDoctors() {
     return this.doctorRepo.find();
   }
 
-  async editDoctor(doctorId: number, dto: EditDoctorDto) {
-    const doctor = await this.doctorRepo.findOne({ where: { doctorId } });
-    if (!doctor) throw new NotFoundException('Doctor not found');
-
-    Object.assign(doctor, dto);
-    return this.doctorRepo.save(doctor);
-  }
-
-  async deleteDoctor(doctorId: number) {
-    const doctor = await this.doctorRepo.findOne({ where: { doctorId } });
-    if (!doctor) throw new NotFoundException('Doctor not found');
-    await this.doctorRepo.remove(doctor);
-    return { message: 'Doctor deleted' };
-  }
-
-  // Patients
+  // Patients (read-only oversight)
   getPatients() {
     return this.patientRepo.find();
   }
 
-  async editPatient(patientId: number, dto: EditPatientDto) {
-    const patient = await this.patientRepo.findOne({ where: { patientId } });
-    if (!patient) throw new NotFoundException('Patient not found');
-
-    Object.assign(patient, dto);
-    return this.patientRepo.save(patient);
-  }
-
-  async deletePatient(patientId: number) {
-    const patient = await this.patientRepo.findOne({ where: { patientId } });
-    if (!patient) throw new NotFoundException('Patient not found');
-    await this.patientRepo.remove(patient);
-    return { message: 'Patient deleted' };
-  }
-
-  // Appointments
+  // Appointments (read-only oversight)
   getAppointments() {
     return this.appointmentRepo.find({
-      relations: { doctor: true, patient: true },
+      relations: { doctor: true, patient: true, chamber: true },
     });
   }
 
-  async updateAppointmentStatus(appointmentId: number, status: AppointmentStatus) {
-    const appt = await this.appointmentRepo.findOne({ where: { appointmentId } });
-    if (!appt) throw new NotFoundException('Appointment not found');
-    appt.status = status;
-    return this.appointmentRepo.save(appt);
-  }
-
-  async deleteAppointment(appointmentId: number) {
-    const appt = await this.appointmentRepo.findOne({ where: { appointmentId } });
-    if (!appt) throw new NotFoundException('Appointment not found');
-    await this.appointmentRepo.remove(appt);
-    return { message: 'Appointment deleted' };
-  }
-
-  // Medicines
+  // Medicines (reference list)
   getMedicines() {
     return this.medicineRepo.find();
   }
 
   async addMedicine(dto: AddMedicineDto) {
-    const medicine = this.medicineRepo.create({
-      ...dto,
-      status: dto.status ?? MedicineStatus.ACTIVE,
-    });
-    return this.medicineRepo.save(medicine);
-  }
-
-  async updateMedicineStatus(medicineId: number, status: MedicineStatus) {
-    const medicine = await this.medicineRepo.findOne({ where: { medicineId } });
-    if (!medicine) throw new NotFoundException('Medicine not found');
-    medicine.status = status;
+    const medicine = this.medicineRepo.create(dto);
     return this.medicineRepo.save(medicine);
   }
 
@@ -180,7 +127,7 @@ export class AdminService {
       'admin',
       'doctor',
       'patient',
-      'appointment_slot',
+      'chamber',
       'appointment',
       'medicine',
       'prescription',

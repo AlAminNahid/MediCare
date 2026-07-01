@@ -7,25 +7,12 @@ export const adminApi = {
     request('/admin/profile', { method: 'PATCH', body: JSON.stringify(data) }),
 
   getDoctors: () => request('/admin/doctors'),
-  editDoctor: (id: number, data: object) =>
-    request(`/admin/doctors/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  deleteDoctor: (id: number) => request(`/admin/doctors/${id}`, { method: 'DELETE' }),
-
   getPatients: () => request('/admin/patients'),
-  editPatient: (id: number, data: object) =>
-    request(`/admin/patients/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  deletePatient: (id: number) => request(`/admin/patients/${id}`, { method: 'DELETE' }),
-
   getAppointments: () => request('/admin/appointments'),
-  updateAppointmentStatus: (id: number, status: string) =>
-    request(`/admin/appointments/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
-  deleteAppointment: (id: number) => request(`/admin/appointments/${id}`, { method: 'DELETE' }),
 
   getMedicines: () => request('/admin/medicines'),
   addMedicine: (data: object) =>
     request('/admin/medicines', { method: 'POST', body: JSON.stringify(data) }),
-  updateMedicineStatus: (id: number, status: string) =>
-    request(`/admin/medicines/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   deleteMedicine: (id: number) => request(`/admin/medicines/${id}`, { method: 'DELETE' }),
 
   getBackups: () => request('/admin/backups'),

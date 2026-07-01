@@ -108,7 +108,7 @@ export default function RegisterPage() {
         </Link>
         <div>
           <h2 className="text-3xl font-bold text-white">Join thousands of healthcare professionals</h2>
-          <p className="mt-4 text-slate-400">Manage your clinic, patients, and appointments all from one place.</p>
+          <p className="mt-4 text-slate-400">Manage your chamber, patients, and appointments all from one place.</p>
           <div className="mt-8 grid grid-cols-2 gap-4">
             {[
               { label: 'Doctors', stat: '500+' },

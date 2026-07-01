@@ -6,6 +6,7 @@ import { Admin } from '../entities/admin.entity';
 import { Doctor } from '../entities/doctor.entity';
 import { Patient } from '../entities/patient.entity';
 import { Appointment } from '../entities/appointment.entity';
+import { Chamber } from '../entities/chamber.entity';
 import { Medicine } from '../entities/medicine.entity';
 import { Backup } from '../entities/backup.entity';
 import { Login } from '../entities/login.entity';
@@ -17,6 +18,7 @@ import { Login } from '../entities/login.entity';
       Doctor,
       Patient,
       Appointment,
+      Chamber,
       Medicine,
       Backup,
       Login,

@@ -15,13 +15,27 @@ export interface Patient {
   address: string;
 }
 
+export interface Chamber {
+  chamberId: number;
+  doctorId: number;
+  name: string;
+  address: string;
+  days: string[];
+  startTime: string;
+  endTime: string;
+  visitFee: number;
+}
+
+export type AppointmentStatus = 'Waiting' | 'Serving' | 'Done' | 'Cancelled' | 'No Show';
+
 export interface Appointment {
   appointmentId: number;
   doctor: { fullName: string };
   patient: { fullName: string; phoneNumber: string };
+  chamber: { name: string; address: string };
   date: string;
-  time: string;
-  status: string;
+  serialNumber: number;
+  status: AppointmentStatus;
   reason: string;
 }
 
@@ -31,7 +45,6 @@ export interface Medicine {
   type: string;
   strength: string;
   manufacturerName: string;
-  status: 'Active' | 'Inactive';
 }
 
 export interface Backup {
@@ -39,13 +52,6 @@ export interface Backup {
   fileName: string;
   createdAt: string;
   createdBy: string;
-}
-
-export interface Slot {
-  slotId: number;
-  startTime: string;
-  endTime: string;
-  days: string[];
 }
 
 export interface Prescription {

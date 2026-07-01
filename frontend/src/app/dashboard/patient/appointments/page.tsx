@@ -4,21 +4,14 @@ import { useEffect, useState } from 'react';
 import { CalendarDays, XCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 import ConfirmModal from '@/components/ui/ConfirmModal';
-
-interface Appointment {
-  appointmentId: number;
-  doctor: { fullName: string; specialization: string };
-  date: string;
-  time: string;
-  status: string;
-  reason: string;
-}
+import type { Appointment } from '@/types';
 
 const STATUS_COLORS: Record<string, string> = {
-  Booked: 'bg-blue-50 text-blue-700',
-  Approved: 'bg-green-50 text-green-700',
+  Waiting: 'bg-blue-50 text-blue-700',
+  Serving: 'bg-amber-50 text-amber-700',
+  Done: 'bg-green-50 text-green-700',
   Cancelled: 'bg-red-50 text-red-700',
-  Rescheduled: 'bg-amber-50 text-amber-700',
+  'No Show': 'bg-slate-100 text-slate-500',
 };
 
 export default function PatientAppointmentsPage() {
@@ -75,8 +68,8 @@ export default function PatientAppointmentsPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-slate-900">{a.doctor?.fullName}</p>
-                  <p className="text-sm text-slate-500">{a.doctor?.specialization}</p>
-                  <p className="mt-1 text-xs text-slate-400">{a.date} at {a.time?.slice(0, 5)}</p>
+                  <p className="text-sm text-slate-500">{a.chamber?.name}</p>
+                  <p className="mt-1 text-xs text-slate-400">{a.date} · Serial #{a.serialNumber}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -84,7 +77,7 @@ export default function PatientAppointmentsPage() {
                   <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLORS[a.status] || 'bg-slate-100 text-slate-600'}`}>{a.status}</span>
                   <p className="mt-1 max-w-[180px] truncate text-xs text-slate-400">{a.reason}</p>
                 </div>
-                {(a.status === 'Booked' || a.status === 'Approved') && (
+                {a.status === 'Waiting' && (
                   <button
                     onClick={() => setCancelId(a.appointmentId)}
                     className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-red-500 hover:border-red-300 hover:bg-red-50"

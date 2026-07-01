@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Appointment } from './appointment.entity';
-import { AppointmentSlot } from './appointment-slot.entity';
+import { Chamber } from './chamber.entity';
 import { Prescription } from './prescription.entity';
 
 @Entity('doctor')
@@ -23,8 +23,8 @@ export class Doctor {
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)
   appointments: Appointment[];
 
-  @OneToMany(() => AppointmentSlot, (slot) => slot.doctor)
-  slots: AppointmentSlot[];
+  @OneToMany(() => Chamber, (chamber) => chamber.doctor)
+  chambers: Chamber[];
 
   @OneToMany(() => Prescription, (prescription) => prescription.doctor)
   prescriptions: Prescription[];

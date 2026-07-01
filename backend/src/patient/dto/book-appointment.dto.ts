@@ -2,13 +2,10 @@ import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class BookAppointmentDto {
   @IsNumber()
-  doctorId: number;
+  chamberId: number;
 
   @IsDateString()
   date: string;
-
-  @IsString()
-  time: string;
 
   @IsString()
   @IsOptional()

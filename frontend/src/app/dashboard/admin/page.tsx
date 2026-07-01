@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Stethoscope, Users, CalendarDays, Pill, ArrowRight, TrendingUp } from 'lucide-react';
+import { Stethoscope, Users, CalendarDays, Pill, Building2, ArrowRight, TrendingUp } from 'lucide-react';
 import { api } from '@/lib/api';
 import Skeleton from '@/components/ui/Skeleton';
 
 interface Stats {
   totalDoctors: number;
   totalPatients: number;
+  totalChambers: number;
   totalAppointments: number;
   totalMedicines: number;
 }
@@ -73,6 +74,7 @@ export default function AdminDashboard() {
     ? [
         { label: 'Total Doctors', value: stats.totalDoctors, icon: <Stethoscope className="h-5 w-5" />, color: 'text-blue-600 bg-blue-100' },
         { label: 'Total Patients', value: stats.totalPatients, icon: <Users className="h-5 w-5" />, color: 'text-green-600 bg-green-100' },
+        { label: 'Chambers', value: stats.totalChambers, icon: <Building2 className="h-5 w-5" />, color: 'text-indigo-600 bg-indigo-100' },
         { label: 'Appointments', value: stats.totalAppointments, icon: <CalendarDays className="h-5 w-5" />, color: 'text-purple-600 bg-purple-100' },
         { label: 'Medicines', value: stats.totalMedicines, icon: <Pill className="h-5 w-5" />, color: 'text-orange-600 bg-orange-100' },
       ]

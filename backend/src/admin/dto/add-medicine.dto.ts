@@ -1,5 +1,4 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { MedicineStatus } from '../../entities/medicine.entity';
+import { IsString } from 'class-validator';
 
 export class AddMedicineDto {
   @IsString()
@@ -13,8 +12,4 @@ export class AddMedicineDto {
 
   @IsString()
   manufacturerName: string;
-
-  @IsOptional()
-  @IsEnum(MedicineStatus)
-  status?: MedicineStatus;
 }

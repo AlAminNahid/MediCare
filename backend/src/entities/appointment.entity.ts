@@ -4,18 +4,22 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { Doctor } from './doctor.entity';
 import { Patient } from './patient.entity';
+import { Chamber } from './chamber.entity';
 
 export enum AppointmentStatus {
-  BOOKED = 'Booked',
-  APPROVED = 'Approved',
+  WAITING = 'Waiting',
+  SERVING = 'Serving',
+  DONE = 'Done',
   CANCELLED = 'Cancelled',
-  RESCHEDULED = 'Rescheduled',
+  NO_SHOW = 'No Show',
 }
 
 @Entity('appointment')
+@Unique(['chamberId', 'date', 'serialNumber'])
 export class Appointment {
   @PrimaryGeneratedColumn()
   appointmentId: number;
@@ -26,16 +30,19 @@ export class Appointment {
   @Column()
   patientId: number;
 
+  @Column()
+  chamberId: number;
+
   @Column({ type: 'date' })
   date: string;
 
-  @Column({ type: 'time' })
-  time: string;
+  @Column()
+  serialNumber: number;
 
   @Column({
     type: 'enum',
     enum: AppointmentStatus,
-    default: AppointmentStatus.BOOKED,
+    default: AppointmentStatus.WAITING,
   })
   status: AppointmentStatus;
 
@@ -53,4 +60,10 @@ export class Appointment {
   })
   @JoinColumn({ name: 'patientId' })
   patient: Patient;
+
+  @ManyToOne(() => Chamber, (chamber) => chamber.appointments, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'chamberId' })
+  chamber: Chamber;
 }

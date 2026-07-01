@@ -1,6 +1,6 @@
-# MediCare — Clinic Management System
+# MediCare — Medical Chamber Management System
 
-A modern, full-stack clinic management platform built as a SaaS web application. MediCare lets administrators, doctors, and patients manage the complete clinic workflow — from appointments and prescriptions to medicine inventory — from a single platform.
+A modern, full-stack medical chamber management platform built as a SaaS web application. MediCare lets doctors run one or more private chambers, patients book a daily serial number online instead of a fixed time slot, and a platform admin oversees the system — from chamber schedules and prescriptions to a shared medicine reference list.
 
 ---
 
@@ -39,26 +39,27 @@ MediCare/
 │       │       │   ├── backups/
 │       │       │   └── profile/
 │       │       ├── doctor/                 # Doctor portal
-│       │       │   ├── appointments/
+│       │       │   ├── appointments/       # Daily serial queue
 │       │       │   ├── patients/
 │       │       │   ├── prescriptions/
-│       │       │   ├── slots/
+│       │       │   ├── chambers/           # Chamber locations & schedules
 │       │       │   └── profile/
 │       │       └── patient/                # Patient portal
-│       │           ├── book-appointment/
+│       │           ├── book-appointment/   # Doctor → chamber → serial
 │       │           ├── appointments/
 │       │           ├── prescriptions/
 │       │           └── profile/
 │       ├── components/
 │       │   └── DashboardLayout.tsx         # Shared sidebar layout
 │       └── lib/
-│           └── api.ts                      # API client (all endpoints)
+│           └── api/                        # API client (all endpoints)
 │
 └── backend/                # NestJS application
     └── src/
         ├── auth/           # JWT auth, login, register, password reset
         ├── admin/          # Admin routes & business logic
         ├── doctor/         # Doctor routes & business logic
+        ├── chamber/        # Chamber CRUD (locations, schedules, fees)
         ├── patient/        # Patient routes & business logic
         └── entities/       # TypeORM entities (DB models)
 ```
@@ -70,11 +71,11 @@ MediCare/
 ```
 Admin          — adminId, fullName, phoneNumber, email
 Doctor         — doctorId, fullName, phoneNumber, specialization, visitFee
+Chamber        — chamberId, doctorId, name, address, days, startTime, endTime, visitFee
 Patient        — patientId, fullName, phoneNumber, age, gender, address
 Login          — loginId, email, password (bcrypt), role, adminId?, doctorId?, patientId?
-Appointment    — appointmentId, doctorId, patientId, date, time, status, reason
-AppointmentSlot— slotId, doctorId, startTime, endTime, days
-Medicine       — medicineId, name, type, strength, manufacturerName, status
+Appointment    — appointmentId, doctorId, patientId, chamberId, date, serialNumber, status, reason
+Medicine       — medicineId, name, type, strength, manufacturerName
 Prescription   — prescriptionId, doctorId, patientId, date, medicineId, dosage, duration, notes
 Backup         — backupId, fileName, createdAt, createdBy
 ```
@@ -84,26 +85,26 @@ Backup         — backupId, fileName, createdAt, createdBy
 ## Features
 
 ### Admin Portal
-- **Dashboard** — live stats (doctors, patients, appointments, medicines)
-- **Doctors** — view, edit, delete doctor records
-- **Patients** — view, edit, delete patient records
-- **Appointments** — filter by status, update appointment status, delete
-- **Medicines** — add medicines, activate/deactivate, delete
+- **Dashboard** — live stats (doctors, patients, chambers, appointments, medicines)
+- **Doctors** — platform-wide read-only view of registered doctors
+- **Patients** — platform-wide read-only view of registered patients
+- **Appointments** — platform-wide read-only view of all bookings
+- **Medicines** — add, list, delete the shared medicine reference list
 - **Backups** — create and manage database backup records
 - **Profile** — update name, email, phone, and password
 
 ### Doctor Portal
 - **Dashboard** — profile overview and quick links
-- **Appointments** — view all scheduled appointments with status filtering
+- **Chambers** — manage the locations, days, hours, and visit fee for each chamber
+- **Appointments** — today's serial-ordered queue per chamber; call next / mark done / no-show
 - **My Patients** — list of patients who have had appointments
 - **Prescriptions** — view and issue digital prescriptions
-- **Slots** — manage available appointment time windows per day
 - **Profile** — update professional info and login credentials
 
 ### Patient Portal
 - **Dashboard** — personal info summary and quick links
-- **Book Appointment** — browse doctors and book a visit with date/time/reason
-- **My Appointments** — view booking history, cancel active appointments
+- **Book Appointment** — pick a doctor, pick one of their chambers, and get the next serial number for that date
+- **My Appointments** — view booking history and serial numbers, cancel active bookings
 - **My Prescriptions** — view digital prescriptions with medicine details
 - **Profile** — update personal information
 
@@ -122,7 +123,7 @@ Backup         — backupId, fileName, createdAt, createdBy
 Create a PostgreSQL database:
 
 ```sql
-CREATE DATABASE clinic_management_system;
+CREATE DATABASE chamber_management_system;
 ```
 
 ### 2 — Backend Setup
@@ -139,7 +140,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_USER=your_postgres_user
 DB_PASSWORD=your_postgres_password
-DB_NAME=clinic_management_system
+DB_NAME=chamber_management_system
 JWT_SECRET=your_super_secret_key
 ```
 
@@ -178,9 +179,9 @@ The app runs on **http://localhost:3000**
 
 | Role | Description |
 |---|---|
-| `admin` | Full system access — manage doctors, patients, medicines, backups |
-| `doctor` | Manage own appointments, patients, prescriptions, and slots |
-| `patient` | Book appointments, view prescriptions, manage profile |
+| `admin` | Platform-level oversight — read-only visibility into doctors/patients/appointments, manages medicines and backups |
+| `doctor` | Manages own chambers, appointment queue, patients, and prescriptions |
+| `patient` | Books appointments against a chamber, views prescriptions, manages profile |
 
 Register a new account at `/register` and select the appropriate role.
 
@@ -194,8 +195,9 @@ All endpoints are prefixed with `/api`.
 |---|---|---|
 | Auth | `/api/auth` | `POST /login`, `POST /register`, `POST /forgot-password` |
 | Admin | `/api/admin` | `/dashboard`, `/doctors`, `/patients`, `/appointments`, `/medicines`, `/backups`, `/profile` |
-| Doctor | `/api/doctor` | `/profile`, `/appointments`, `/patients`, `/prescriptions`, `/slots` |
-| Patient | `/api/patient` | `/profile`, `/doctors`, `/appointments`, `/prescriptions` |
+| Doctor | `/api/doctor` | `/profile`, `/appointments`, `/patients`, `/prescriptions` |
+| Chamber | `/api/doctor/chambers` | CRUD for a doctor's chambers |
+| Patient | `/api/patient` | `/profile`, `/doctors`, `/doctors/:doctorId/chambers`, `/appointments`, `/prescriptions` |
 
 Protected routes require a `Bearer` token in the `Authorization` header.
 

@@ -1,18 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Pill, Plus, Trash2, X, Check, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Pill, Plus, Trash2, X, Check } from 'lucide-react';
 import { api } from '@/lib/api';
 import ConfirmModal from '@/components/ui/ConfirmModal';
-
-interface Medicine {
-  medicineId: number;
-  name: string;
-  type: string;
-  strength: string;
-  manufacturerName: string;
-  status: 'Active' | 'Inactive';
-}
+import type { Medicine } from '@/types';
 
 const emptyForm = { name: '', type: '', strength: '', manufacturerName: '' };
 
@@ -52,14 +44,6 @@ export default function AdminMedicinesPage() {
     }
   };
 
-  const handleToggle = async (id: number, current: string) => {
-    const next = current === 'Active' ? 'Inactive' : 'Active';
-    await api.admin.updateMedicineStatus(id, next);
-    setMedicines((prev) =>
-      prev.map((m) => (m.medicineId === id ? { ...m, status: next as any } : m)),
-    );
-  };
-
   const handleDelete = async () => {
     if (deleteId === null) return;
     setDeleting(true);
@@ -79,7 +63,7 @@ export default function AdminMedicinesPage() {
           <Pill className="h-6 w-6 text-indigo-600" />
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Medicines</h1>
-            <p className="text-sm text-slate-500">Manage your medicine inventory</p>
+            <p className="text-sm text-slate-500">Reference list used when writing prescriptions</p>
           </div>
         </div>
         <button
@@ -101,7 +85,7 @@ export default function AdminMedicinesPage() {
           <table className="w-full text-sm">
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
-                {['#', 'Name', 'Type', 'Strength', 'Manufacturer', 'Status', 'Actions'].map((h) => (
+                {['#', 'Name', 'Type', 'Strength', 'Manufacturer', 'Actions'].map((h) => (
                   <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">{h}</th>
                 ))}
               </tr>
@@ -115,23 +99,9 @@ export default function AdminMedicinesPage() {
                   <td className="px-5 py-4 text-slate-600">{m.strength}</td>
                   <td className="px-5 py-4 text-slate-600">{m.manufacturerName}</td>
                   <td className="px-5 py-4">
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${m.status === 'Active' ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
-                      {m.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleToggle(m.medicineId, m.status)}
-                        className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${m.status === 'Active' ? 'border-slate-200 text-slate-600 hover:bg-slate-50' : 'border-green-200 text-green-600 hover:bg-green-50'}`}
-                      >
-                        {m.status === 'Active' ? <ToggleRight className="h-3.5 w-3.5" /> : <ToggleLeft className="h-3.5 w-3.5" />}
-                        {m.status === 'Active' ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button onClick={() => setDeleteId(m.medicineId)} className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-red-500 hover:border-red-300 hover:bg-red-50">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
+                    <button onClick={() => setDeleteId(m.medicineId)} className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-red-500 hover:border-red-300 hover:bg-red-50">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -159,7 +129,7 @@ export default function AdminMedicinesPage() {
                 <div key={key}>
                   <label className="mb-1.5 block text-sm font-medium text-slate-700">{label}</label>
                   <input
-                    value={(form as any)[key]}
+                    value={(form as Record<string, string>)[key]}
                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                     placeholder={placeholder}
                     className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
@@ -180,7 +150,7 @@ export default function AdminMedicinesPage() {
       {deleteId !== null && (
         <ConfirmModal
           title="Delete this medicine?"
-          message="This will permanently remove the medicine from the inventory."
+          message="This will permanently remove the medicine from the reference list."
           confirmLabel="Delete Medicine"
           loading={deleting}
           onConfirm={handleDelete}

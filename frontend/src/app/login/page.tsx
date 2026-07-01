@@ -86,9 +86,9 @@ export default function LoginPage() {
         </Link>
         <div>
           <blockquote className="text-2xl font-medium leading-snug text-white">
-            "Streamline your clinic. Empower your team. Deliver exceptional patient care."
+            "Streamline your chamber. Empower your team. Deliver exceptional patient care."
           </blockquote>
-          <p className="mt-4 text-slate-400">The all-in-one clinic management platform.</p>
+          <p className="mt-4 text-slate-400">The all-in-one medical chamber management platform.</p>
         </div>
         <div className="flex gap-6 text-sm text-slate-500">
           <span>Secure</span>

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MediCare — Clinic Management System",
-  description: "Modern clinic management platform for doctors, patients, and admins.",
+  title: "MediCare — Medical Chamber Management System",
+  description: "Modern medical chamber management platform for doctors, patients, and admins.",
 };
 
 export default function RootLayout({

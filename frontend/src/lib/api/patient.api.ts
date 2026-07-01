@@ -6,6 +6,7 @@ export const patientApi = {
     request('/patient/profile', { method: 'PATCH', body: JSON.stringify(data) }),
 
   getDoctors: () => request('/patient/doctors'),
+  getChambers: (doctorId: number) => request(`/patient/doctors/${doctorId}/chambers`),
   bookAppointment: (data: object) =>
     request('/patient/appointments', { method: 'POST', body: JSON.stringify(data) }),
   getAppointments: () => request('/patient/appointments'),

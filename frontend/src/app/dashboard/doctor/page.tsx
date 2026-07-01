@@ -11,7 +11,7 @@ const quickLinks = [
   { label: 'Appointments', href: '/dashboard/doctor/appointments', icon: <CalendarDays className="h-5 w-5 text-purple-600" />, bg: 'bg-purple-50' },
   { label: 'My Patients', href: '/dashboard/doctor/patients', icon: <Users className="h-5 w-5 text-green-600" />, bg: 'bg-green-50' },
   { label: 'Prescriptions', href: '/dashboard/doctor/prescriptions', icon: <FileText className="h-5 w-5 text-blue-600" />, bg: 'bg-blue-50' },
-  { label: 'Slots', href: '/dashboard/doctor/slots', icon: <Clock className="h-5 w-5 text-orange-600" />, bg: 'bg-orange-50' },
+  { label: 'Chambers', href: '/dashboard/doctor/chambers', icon: <Clock className="h-5 w-5 text-orange-600" />, bg: 'bg-orange-50' },
 ];
 
 export default function DoctorDashboard() {
