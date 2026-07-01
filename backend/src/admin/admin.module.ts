@@ -10,6 +10,7 @@ import { Chamber } from '../entities/chamber.entity';
 import { Medicine } from '../entities/medicine.entity';
 import { Backup } from '../entities/backup.entity';
 import { Login } from '../entities/login.entity';
+import { Feedback } from '../entities/feedback.entity';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { Login } from '../entities/login.entity';
       Medicine,
       Backup,
       Login,
+      Feedback,
     ]),
   ],
   controllers: [AdminController],

@@ -1,22 +1,34 @@
-import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsDateString, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 
-export class CreatePrescriptionDto {
-  @IsNumber()
-  patientId: number;
-
-  @IsNumber()
-  medicineId: number;
-
-  @IsDateString()
-  date: string;
-
+export class PrescriptionMedicineDto {
   @IsString()
-  @IsOptional()
-  additionalNotes?: string;
+  medicineName: string;
 
   @IsString()
   dosage: string;
 
   @IsString()
   duration: string;
+}
+
+export class CreatePrescriptionDto {
+  @IsNumber()
+  patientId: number;
+
+  @IsNumber()
+  @IsOptional()
+  chamberId?: number;
+
+  @IsDateString()
+  date: string;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PrescriptionMedicineDto)
+  medicines: PrescriptionMedicineDto[];
 }

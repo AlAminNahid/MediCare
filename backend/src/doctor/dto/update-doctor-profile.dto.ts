@@ -1,4 +1,4 @@
-import { IsEmail, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsArray, IsEmail, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class UpdateDoctorProfileDto {
   @IsOptional()
@@ -20,6 +20,11 @@ export class UpdateDoctorProfileDto {
   @IsOptional()
   @IsNumber()
   visitFee?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  degrees?: string[];
 
   @IsOptional()
   @IsString()

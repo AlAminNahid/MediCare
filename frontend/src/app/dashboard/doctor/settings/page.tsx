@@ -1,24 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Settings, UserCircle, Lock, Save, CheckCircle, AlertCircle, Eye, EyeOff, Phone, Mail, User, Stethoscope, DollarSign } from 'lucide-react';
+import { Save, CheckCircle, AlertCircle, Eye, EyeOff, Pencil, Plus, X, GraduationCap, Send } from 'lucide-react';
 import { api } from '@/lib/api';
 
-interface DoctorProfile {
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  specialization: string;
-  visitFee: number;
-}
-
-type Tab = 'profile' | 'password';
+interface DoctorProfile { fullName: string; email: string; phoneNumber: string; specialization: string; visitFee: number; degrees: string[] }
+type Tab = 'profile' | 'password' | 'plan' | 'feedback';
 
 export default function DoctorSettingsPage() {
   const [tab, setTab] = useState<Tab>('profile');
   const [profile, setProfile] = useState<DoctorProfile | null>(null);
-  const [profileForm, setProfileForm] = useState({ fullName: '', email: '', phoneNumber: '', specialization: '', visitFee: 0 });
+  const [editing, setEditing] = useState(false);
+  const [profileForm, setProfileForm] = useState({ fullName: '', email: '', phoneNumber: '', specialization: '', visitFee: 0, degrees: ['MBBS'] as string[] });
+  const [degreeInput, setDegreeInput] = useState('');
   const [passwordForm, setPasswordForm] = useState({ newPassword: '', confirmPassword: '' });
+  const [feedbackForm, setFeedbackForm] = useState({ subject: '', message: '' });
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -36,336 +32,328 @@ export default function DoctorSettingsPage() {
         phoneNumber: p.phoneNumber ?? '',
         specialization: p.specialization ?? '',
         visitFee: p.visitFee ?? 0,
+        degrees: Array.isArray(p.degrees) && p.degrees.length > 0 ? p.degrees : ['MBBS'],
       });
       localStorage.setItem('userFullName', p.fullName);
     }).finally(() => setLoading(false));
   }, []);
 
-  const showSuccess = (msg: string) => {
-    setSuccess(msg);
-    setError('');
-    setTimeout(() => setSuccess(''), 4000);
+  const showMsg = (msg: string, isErr = false) => {
+    if (isErr) { setError(msg); setSuccess(''); } else { setSuccess(msg); setError(''); }
+    setTimeout(() => { setSuccess(''); setError(''); }, 4000);
+  };
+
+  const addDegree = () => {
+    const d = degreeInput.trim().toUpperCase();
+    if (d && !profileForm.degrees.includes(d)) setProfileForm(p => ({ ...p, degrees: [...p.degrees, d] }));
+    setDegreeInput('');
+  };
+
+  const removeDegree = (deg: string) => {
+    if (deg === 'MBBS') return;
+    setProfileForm(p => ({ ...p, degrees: p.degrees.filter(d => d !== deg) }));
   };
 
   const handleProfileSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setError('');
+    e.preventDefault(); setSaving(true); setError('');
     try {
       await api.doctor.updateProfile(profileForm);
       setProfile({ ...profileForm });
       localStorage.setItem('userFullName', profileForm.fullName);
-      showSuccess('Profile updated successfully');
-    } catch (err: unknown) {
-      setError((err as Error).message || 'Failed to update profile');
-    } finally {
-      setSaving(false);
-    }
+      setEditing(false);
+      showMsg('Profile updated successfully');
+    } catch (err: unknown) { showMsg((err as Error).message || 'Failed to update', true); }
+    finally { setSaving(false); }
   };
 
   const handlePasswordSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    if (passwordForm.newPassword.length < 8) {
-      setError('Password must be at least 8 characters');
-      return;
-    }
+    e.preventDefault(); setError('');
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) { showMsg('Passwords do not match', true); return; }
+    if (passwordForm.newPassword.length < 8) { showMsg('Password must be at least 8 characters', true); return; }
     setSaving(true);
     try {
       await api.doctor.updateProfile({ password: passwordForm.newPassword });
       setPasswordForm({ newPassword: '', confirmPassword: '' });
-      showSuccess('Password updated successfully');
-    } catch (err: unknown) {
-      setError((err as Error).message || 'Failed to update password');
-    } finally {
-      setSaving(false);
-    }
+      showMsg('Password updated successfully');
+    } catch (err: unknown) { showMsg((err as Error).message || 'Failed to update', true); }
+    finally { setSaving(false); }
   };
 
-  const passwordStrength = (pw: string) => {
-    if (!pw) return null;
-    let score = 0;
-    if (pw.length >= 8) score++;
-    if (/[A-Z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
-    if (score <= 1) return { label: 'Weak', color: 'bg-red-500', text: 'text-red-600', width: 'w-1/4' };
-    if (score === 2) return { label: 'Fair', color: 'bg-amber-500', text: 'text-amber-600', width: 'w-2/4' };
-    if (score === 3) return { label: 'Good', color: 'bg-blue-500', text: 'text-blue-600', width: 'w-3/4' };
-    return { label: 'Strong', color: 'bg-green-500', text: 'text-green-600', width: 'w-full' };
+  const handleFeedbackSave = async (e: React.FormEvent) => {
+    e.preventDefault(); setSaving(true); setError('');
+    try {
+      await api.doctor.submitFeedback(feedbackForm);
+      setFeedbackForm({ subject: '', message: '' });
+      showMsg('Feedback submitted. We will review it shortly.');
+    } catch (err: unknown) { showMsg((err as Error).message || 'Failed to submit', true); }
+    finally { setSaving(false); }
   };
 
-  const strength = passwordStrength(passwordForm.newPassword);
+  const strength = (() => {
+    const pw = passwordForm.newPassword; if (!pw) return null;
+    let s = 0; if (pw.length >= 8) s++; if (/[A-Z]/.test(pw)) s++; if (/[0-9]/.test(pw)) s++; if (/[^A-Za-z0-9]/.test(pw)) s++;
+    const levels = [
+      { label: 'Weak', color: 'bg-red-500', text: 'text-red-600', width: 'w-1/4' },
+      { label: 'Fair', color: 'bg-amber-500', text: 'text-amber-600', width: 'w-2/4' },
+      { label: 'Good', color: 'bg-blue-500', text: 'text-blue-600', width: 'w-3/4' },
+      { label: 'Strong', color: 'bg-green-500', text: 'text-green-600', width: 'w-full' },
+    ];
+    return levels[Math.max(0, Math.min(s - 1, 3))];
+  })();
 
-  if (loading) {
-    return (
-      <div className="flex h-full items-center justify-center p-10">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
-      </div>
-    );
-  }
+  if (loading) return <div className="flex h-full items-center justify-center"><div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" /></div>;
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'profile', label: 'Profile' },
+    { key: 'password', label: 'Password' },
+    { key: 'plan', label: 'Plan' },
+    { key: 'feedback', label: 'Feedback' },
+  ];
+
+  const field = (label: string, value: string) => (
+    <div key={label}>
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-0.5">{label}</p>
+      <p className="text-sm text-slate-800">{value || <span className="italic text-slate-400">Not added</span>}</p>
+    </div>
+  );
 
   return (
-    <div className="min-h-full bg-slate-50 p-8">
-      {/* Page header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-100">
-            <Settings className="h-5 w-5 text-indigo-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        </div>
-        <p className="text-sm text-slate-500 ml-12">Manage your professional profile and account security</p>
-      </div>
+    <div className="min-h-full bg-white p-8">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-2xl font-semibold text-slate-900">Settings</h1>
+        <p className="mt-1 text-sm text-slate-500">Manage your professional profile and account security</p>
 
-      <div className="flex gap-8 max-w-4xl">
-        {/* Sidebar tabs */}
-        <div className="w-52 flex-shrink-0">
-          <nav className="space-y-1">
-            {([
-              { key: 'profile', label: 'Profile', sub: 'Name, contact, specialization', icon: <UserCircle className="h-4 w-4" /> },
-              { key: 'password', label: 'Password', sub: 'Change your password', icon: <Lock className="h-4 w-4" /> },
-            ] as { key: Tab; label: string; sub: string; icon: React.ReactNode }[]).map(({ key, label, sub, icon }) => (
-              <button
-                key={key}
-                onClick={() => { setTab(key); setSuccess(''); setError(''); }}
-                className={`w-full flex items-start gap-3 rounded-xl px-3.5 py-3 text-left transition-colors ${
-                  tab === key ? 'bg-white border border-slate-200 shadow-sm' : 'hover:bg-white/60'
-                }`}
-              >
-                <div className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg ${
-                  tab === key ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500'
-                }`}>
-                  {icon}
-                </div>
-                <div>
-                  <p className={`text-sm font-medium ${tab === key ? 'text-slate-900' : 'text-slate-600'}`}>{label}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{sub}</p>
-                </div>
-              </button>
-            ))}
-          </nav>
+        {/* Tab bar */}
+        <div className="mt-6 flex border-b border-slate-200">
+          {tabs.map(({ key, label }) => (
+            <button key={key} onClick={() => { setTab(key); setEditing(false); setSuccess(''); setError(''); }}
+              className={`mr-6 pb-3 text-sm font-medium transition-colors border-b-2 -mb-px ${tab === key ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+              {label}
+            </button>
+          ))}
         </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          {success && (
-            <div className="mb-5 flex items-center gap-2.5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-              <CheckCircle className="h-4 w-4 flex-shrink-0" /> {success}
-            </div>
-          )}
-          {error && (
-            <div className="mb-5 flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" /> {error}
-            </div>
-          )}
+        <div className="mt-6">
+          {success && <div className="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"><CheckCircle className="h-4 w-4 flex-shrink-0" />{success}</div>}
+          {error && <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"><AlertCircle className="h-4 w-4 flex-shrink-0" />{error}</div>}
 
+          {/* Profile */}
           {tab === 'profile' && (
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              {/* Header card */}
-              <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-8">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 text-3xl font-bold text-white shadow-inner backdrop-blur-sm">
-                    {profileForm.fullName.charAt(0).toUpperCase() || 'D'}
+            <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="flex items-start justify-between p-6 pb-4">
+                <div>
+                  <h2 className="font-semibold text-slate-900">Doctor Profile</h2>
+                  <p className="mt-0.5 text-sm text-slate-500">Your professional information</p>
+                </div>
+                {!editing && (
+                  <button onClick={() => setEditing(true)}
+                    className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                    <Pencil className="h-3.5 w-3.5" /> Edit profile
+                  </button>
+                )}
+              </div>
+              <div className="border-t border-slate-100" />
+
+              {!editing ? (
+                <div className="p-6 space-y-5">
+                  <div className="grid grid-cols-2 gap-6">
+                    {field('Full Name', profile?.fullName ?? '')}
+                    {field('Email Address', profile?.email ?? '')}
+                    {field('Phone Number', profile?.phoneNumber ?? '')}
+                    {field('Specialization', profile?.specialization ?? '')}
+                    {field('Visit Fee', profile?.visitFee ? `৳${profile.visitFee}` : '')}
                   </div>
+                  {/* Degrees */}
                   <div>
-                    <p className="text-lg font-bold text-white">{profile?.fullName}</p>
-                    <p className="text-sm text-indigo-200">{profile?.email}</p>
-                    <div className="mt-1.5 flex items-center gap-2">
-                      <span className="inline-block rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium text-white">Doctor</span>
-                      {profile?.specialization && (
-                        <span className="inline-block rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium text-white">{profile.specialization}</span>
-                      )}
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Degrees</p>
+                    <div className="flex flex-wrap gap-2">
+                      {(Array.isArray(profile?.degrees) && profile.degrees.length > 0 ? profile.degrees : ['MBBS']).map(d => (
+                        <span key={d} className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
+                          <GraduationCap className="h-3 w-3 text-slate-400" />{d}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <form onSubmit={handleProfileSave} className="p-6 space-y-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Professional Information</p>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Full Name</label>
-                  <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Dr. Rahim Ahmed"
-                      value={profileForm.fullName}
-                      onChange={(e) => setProfileForm({ ...profileForm, fullName: e.target.value })}
-                      className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Email Address</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="email"
-                      required
-                      placeholder="doctor@medicare.com"
-                      value={profileForm.email}
-                      onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                      className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Phone Number</label>
-                  <div className="relative">
-                    <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="+880 1700 000000"
-                      value={profileForm.phoneNumber}
-                      onChange={(e) => setProfileForm({ ...profileForm, phoneNumber: e.target.value })}
-                      className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Specialization</label>
-                  <div className="relative">
-                    <Stethoscope className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Cardiology, Neurology"
-                      value={profileForm.specialization}
-                      onChange={(e) => setProfileForm({ ...profileForm, specialization: e.target.value })}
-                      className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Visit Fee (৳)</label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="number"
-                      required
-                      min={0}
-                      placeholder="e.g. 500"
-                      value={profileForm.visitFee}
+              ) : (
+                <form onSubmit={handleProfileSave} className="p-6 space-y-4">
+                  {[
+                    { label: 'Full Name', key: 'fullName', type: 'text', placeholder: 'Dr. Rahim Ahmed' },
+                    { label: 'Email', key: 'email', type: 'email', placeholder: 'doctor@medicare.com' },
+                    { label: 'Phone', key: 'phoneNumber', type: 'text', placeholder: '+880 1700 000000' },
+                    { label: 'Specialization', key: 'specialization', type: 'text', placeholder: 'e.g. Cardiology' },
+                  ].map(({ label, key, type, placeholder }) => (
+                    <div key={key} className="grid grid-cols-3 items-center gap-4">
+                      <label className="text-sm font-medium text-slate-700 text-right">{label}</label>
+                      <input type={type} placeholder={placeholder} value={(profileForm as any)[key]}
+                        onChange={(e) => setProfileForm({ ...profileForm, [key]: e.target.value })}
+                        className="col-span-2 rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                    </div>
+                  ))}
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <label className="text-sm font-medium text-slate-700 text-right">Visit Fee (৳)</label>
+                    <input type="number" min={0} value={profileForm.visitFee}
                       onChange={(e) => setProfileForm({ ...profileForm, visitFee: Number(e.target.value) })}
-                      className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    />
+                      className="col-span-2 rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                  </div>
+                  {/* Degrees */}
+                  <div className="grid grid-cols-3 items-start gap-4">
+                    <label className="pt-2 text-sm font-medium text-slate-700 text-right">Degrees</label>
+                    <div className="col-span-2">
+                      <div className="mb-2 flex flex-wrap gap-1.5">
+                        {profileForm.degrees.map(deg => (
+                          <span key={deg} className="flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
+                            {deg}
+                            {deg !== 'MBBS' && (
+                              <button type="button" onClick={() => removeDegree(deg)} className="ml-0.5 text-indigo-400 hover:text-indigo-700"><X className="h-3 w-3" /></button>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <input type="text" placeholder="e.g. MD, FCPS" value={degreeInput}
+                          onChange={(e) => setDegreeInput(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addDegree(); } }}
+                          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                        <button type="button" onClick={addDegree}
+                          className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                          <Plus className="h-3.5 w-3.5" /> Add
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onClick={() => setEditing(false)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" disabled={saving}
+                      className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
+                      <Save className="h-3.5 w-3.5" />{saving ? 'Saving...' : 'Save changes'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
+
+          {/* Password */}
+          {tab === 'password' && (
+            <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="p-6 pb-4">
+                <h2 className="font-semibold text-slate-900">Change Password</h2>
+                <p className="mt-0.5 text-sm text-slate-500">Choose a strong, unique password</p>
+              </div>
+              <div className="border-t border-slate-100" />
+              <form onSubmit={handlePasswordSave} className="p-6 space-y-4">
+                <div className="grid grid-cols-3 items-start gap-4">
+                  <label className="pt-2 text-sm font-medium text-slate-700 text-right">New Password</label>
+                  <div className="col-span-2">
+                    <div className="relative">
+                      <input type={showNew ? 'text' : 'password'} required placeholder="New password" value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                        className="w-full rounded-lg border border-slate-300 px-3.5 py-2 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                      <button type="button" onClick={() => setShowNew(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {strength && (
+                      <div className="mt-2">
+                        <div className="h-1 w-full rounded-full bg-slate-100"><div className={`h-1 rounded-full transition-all ${strength.color} ${strength.width}`} /></div>
+                        <p className={`mt-1 text-xs font-medium ${strength.text}`}>{strength.label}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                <div className="flex items-center justify-end pt-2 border-t border-slate-100">
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-60 transition-colors"
-                  >
-                    <Save className="h-4 w-4" />
-                    {saving ? 'Saving...' : 'Save Changes'}
+                <div className="grid grid-cols-3 items-center gap-4">
+                  <label className="text-sm font-medium text-slate-700 text-right">Confirm Password</label>
+                  <div className="col-span-2 relative">
+                    <input type={showConfirm ? 'text' : 'password'} required placeholder="Confirm password" value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                      className={`w-full rounded-lg border px-3.5 py-2 pr-10 text-sm focus:outline-none focus:ring-2 ${passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword ? 'border-red-300 focus:ring-red-400/20' : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20'}`} />
+                    <button type="button" onClick={() => setShowConfirm(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                      {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                    {passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword && (
+                      <p className="mt-1 text-xs text-red-500">Passwords do not match</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex justify-end pt-2 border-t border-slate-100">
+                  <button type="submit" disabled={saving} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
+                    {saving ? 'Updating...' : 'Update password'}
                   </button>
                 </div>
               </form>
             </div>
           )}
 
-          {tab === 'password' && (
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="border-b border-slate-100 bg-slate-50 px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100">
-                    <Lock className="h-4 w-4 text-amber-600" />
+          {/* Plan */}
+          {tab === 'plan' && (
+            <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="p-6 pb-4">
+                <h2 className="font-semibold text-slate-900">Your Plan</h2>
+                <p className="mt-0.5 text-sm text-slate-500">Upgrade or manage your subscription at any time.</p>
+                <div className="mt-3 flex items-center gap-2">
+                  <span className="rounded-full bg-indigo-600 px-2.5 py-0.5 text-xs font-semibold text-white">FREE</span>
+                  <span className="text-sm text-slate-500">Current plan</span>
+                </div>
+              </div>
+              <div className="border-t border-slate-100" />
+              <div className="p-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="rounded-xl border-2 border-indigo-500 p-5">
+                    <p className="font-semibold text-slate-900">FREE</p>
+                    <p className="text-sm text-slate-500 mt-0.5">Free</p>
+                    <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                      {['Up to 2 chambers', 'Basic appointment tools', 'Patient list access', 'Standard support'].map(f => (
+                        <li key={f} className="flex items-start gap-2"><span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-slate-400" />{f}</li>
+                      ))}
+                    </ul>
+                    <div className="mt-5 pt-4 border-t border-slate-100 text-center">
+                      <span className="text-sm font-medium text-indigo-600">Current Plan</span>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">Change Password</p>
-                    <p className="text-xs text-slate-500">Choose a strong password to keep your account secure</p>
+                  <div className="rounded-xl border border-slate-200 p-5">
+                    <p className="font-semibold text-slate-900">PRO</p>
+                    <p className="text-sm text-slate-500 mt-0.5">৳500/month</p>
+                    <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                      {['Unlimited chambers', 'Advanced prescription tools', 'Analytics dashboard', 'Priority support', 'Custom prescription branding'].map(f => (
+                        <li key={f} className="flex items-start gap-2"><span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-slate-400" />{f}</li>
+                      ))}
+                    </ul>
+                    <div className="mt-5 pt-4 border-t border-slate-100 text-center">
+                      <span className="text-sm text-slate-400">Upgrade</span>
+                      <span className="ml-1.5 text-xs text-slate-400">soon</span>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+          )}
 
-              <form onSubmit={handlePasswordSave} className="p-6 space-y-5">
-                <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
-                  <p className="text-xs font-semibold text-blue-700 mb-1.5">Password requirements</p>
-                  <ul className="space-y-1 text-xs text-blue-600">
-                    {[
-                      'At least 8 characters long',
-                      'Contains uppercase and lowercase letters',
-                      'Includes at least one number',
-                      'Has a special character (e.g. @, #, $)',
-                    ].map((req) => (
-                      <li key={req} className="flex items-center gap-1.5">
-                        <span className="h-1 w-1 rounded-full bg-blue-400 flex-shrink-0" />
-                        {req}
-                      </li>
-                    ))}
-                  </ul>
+          {/* Feedback */}
+          {tab === 'feedback' && (
+            <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="p-6 pb-4">
+                <h2 className="font-semibold text-slate-900">Submit Feedback or Complaint</h2>
+                <p className="mt-0.5 text-sm text-slate-500">Your message will be reviewed by the admin team</p>
+              </div>
+              <div className="border-t border-slate-100" />
+              <form onSubmit={handleFeedbackSave} className="p-6 space-y-4">
+                <div className="grid grid-cols-3 items-center gap-4">
+                  <label className="text-sm font-medium text-slate-700 text-right">Subject</label>
+                  <input type="text" required placeholder="e.g. Issue with appointment scheduling" value={feedbackForm.subject}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, subject: e.target.value })}
+                    className="col-span-2 rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
                 </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">New Password</label>
-                  <div className="relative">
-                    <input
-                      type={showNew ? 'text' : 'password'}
-                      required
-                      placeholder="Enter new password"
-                      value={passwordForm.newPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                      className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 pr-10 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    />
-                    <button type="button" onClick={() => setShowNew((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                      {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  {strength && (
-                    <div className="mt-2">
-                      <div className="h-1.5 w-full rounded-full bg-slate-100">
-                        <div className={`h-1.5 rounded-full transition-all ${strength.color} ${strength.width}`} />
-                      </div>
-                      <p className={`mt-1 text-xs font-medium ${strength.text}`}>{strength.label}</p>
-                    </div>
-                  )}
+                <div className="grid grid-cols-3 items-start gap-4">
+                  <label className="pt-2 text-sm font-medium text-slate-700 text-right">Message</label>
+                  <textarea required rows={5} placeholder="Describe your feedback or complaint in detail..." value={feedbackForm.message}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, message: e.target.value })}
+                    className="col-span-2 resize-none rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
                 </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Confirm New Password</label>
-                  <div className="relative">
-                    <input
-                      type={showConfirm ? 'text' : 'password'}
-                      required
-                      placeholder="Re-enter new password"
-                      value={passwordForm.confirmPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                      className={`w-full rounded-lg border py-2.5 px-3.5 pr-10 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 ${
-                        passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword
-                          ? 'border-red-300 focus:border-red-400 focus:ring-red-400/20'
-                          : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20'
-                      }`}
-                    />
-                    <button type="button" onClick={() => setShowConfirm((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                      {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  {passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword && (
-                    <p className="mt-1 text-xs text-red-500">Passwords do not match</p>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-end pt-2 border-t border-slate-100">
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-60 transition-colors"
-                  >
-                    <Lock className="h-4 w-4" />
-                    {saving ? 'Updating...' : 'Update Password'}
+                <div className="flex justify-end pt-2 border-t border-slate-100">
+                  <button type="submit" disabled={saving || !feedbackForm.subject || !feedbackForm.message}
+                    className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
+                    <Send className="h-3.5 w-3.5" />{saving ? 'Submitting...' : 'Submit feedback'}
                   </button>
                 </div>
               </form>

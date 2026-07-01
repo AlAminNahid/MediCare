@@ -20,6 +20,9 @@ export class Doctor {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   visitFee: number;
 
+  @Column({ type: 'simple-array', nullable: true })
+  degrees: string[];
+
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)
   appointments: Appointment[];
 

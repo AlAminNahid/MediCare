@@ -1,11 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { ILike, QueryFailedError, Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { Patient } from '../entities/patient.entity';
 import { Appointment, AppointmentStatus } from '../entities/appointment.entity';
 import { Doctor } from '../entities/doctor.entity';
 import { Chamber } from '../entities/chamber.entity';
 import { Prescription } from '../entities/prescription.entity';
+import { Login } from '../entities/login.entity';
+import { Feedback, FeedbackSenderRole } from '../entities/feedback.entity';
 import { UpdatePatientProfileDto } from './dto/update-patient-profile.dto';
 import { BookAppointmentDto } from './dto/book-appointment.dto';
 
@@ -17,23 +20,46 @@ export class PatientService {
     @InjectRepository(Doctor) private doctorRepo: Repository<Doctor>,
     @InjectRepository(Chamber) private chamberRepo: Repository<Chamber>,
     @InjectRepository(Prescription) private prescriptionRepo: Repository<Prescription>,
+    @InjectRepository(Login) private loginRepo: Repository<Login>,
+    @InjectRepository(Feedback) private feedbackRepo: Repository<Feedback>,
   ) {}
 
   async getPatientInfo(patientId: number) {
     const patient = await this.patientRepo.findOne({ where: { patientId } });
     if (!patient) throw new NotFoundException('Patient not found');
-    return patient;
+    const login = await this.loginRepo.findOne({ where: { patientId } });
+    return { ...patient, email: login?.email ?? '' };
   }
 
   async updatePatientProfile(patientId: number, dto: UpdatePatientProfileDto) {
     const patient = await this.patientRepo.findOne({ where: { patientId } });
     if (!patient) throw new NotFoundException('Patient not found');
-    Object.assign(patient, dto);
-    return this.patientRepo.save(patient);
+
+    const { password, email, ...profileFields } = dto;
+    Object.assign(patient, profileFields);
+    await this.patientRepo.save(patient);
+
+    const login = await this.loginRepo.findOne({ where: { patientId } });
+    if (login) {
+      if (email !== undefined) login.email = email;
+      if (password) login.password = await bcrypt.hash(password, 10);
+      await this.loginRepo.save(login);
+    }
+
+    return { message: 'Profile updated successfully' };
   }
 
-  getDoctors() {
-    return this.doctorRepo.find();
+  getDoctors(location?: string) {
+    if (!location) {
+      return this.doctorRepo.find({ order: { fullName: 'ASC' } });
+    }
+    return this.doctorRepo
+      .createQueryBuilder('d')
+      .innerJoin('d.chambers', 'c')
+      .where('c.address ILIKE :loc', { loc: `%${location}%` })
+      .orWhere('c.name ILIKE :loc', { loc: `%${location}%` })
+      .orderBy('d.fullName', 'ASC')
+      .getMany();
   }
 
   getChambers(doctorId: number) {
@@ -44,8 +70,6 @@ export class PatientService {
     const chamber = await this.chamberRepo.findOne({ where: { chamberId: dto.chamberId } });
     if (!chamber) throw new NotFoundException('Chamber not found');
 
-    // Retry on unique-constraint conflict to avoid duplicate serial numbers
-    // when two patients book the same chamber/date at the same time.
     for (let attempt = 0; attempt < 5; attempt++) {
       const existing = await this.appointmentRepo.count({
         where: { chamberId: chamber.chamberId, date: dto.date },
@@ -88,7 +112,18 @@ export class PatientService {
   getPrescriptions(patientId: number) {
     return this.prescriptionRepo.find({
       where: { patientId },
-      relations: { doctor: true, medicine: true },
+      relations: { doctor: true, chamber: true, medicines: true },
+      order: { date: 'DESC' },
     });
+  }
+
+  async submitFeedback(patientId: number, dto: { subject: string; message: string }) {
+    const feedback = this.feedbackRepo.create({
+      senderRole: FeedbackSenderRole.PATIENT,
+      patientId,
+      subject: dto.subject,
+      message: dto.message,
+    });
+    return this.feedbackRepo.save(feedback);
   }
 }

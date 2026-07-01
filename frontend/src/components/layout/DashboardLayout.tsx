@@ -139,14 +139,10 @@ export default function DashboardLayout({ children, requiredRole, navItems, role
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 top-full z-50 mt-1.5 w-48 rounded-xl border border-slate-200 bg-white shadow-lg overflow-hidden">
-                <div className="border-b border-slate-100 px-4 py-3">
-                  <p className="text-xs font-semibold text-slate-900 truncate">{fullName}</p>
-                  <p className="text-[11px] text-slate-400 capitalize mt-0.5">{roleLabel}</p>
-                </div>
+              <div className="absolute right-0 top-full z-50 mt-1.5 w-44 rounded-xl border border-slate-200 bg-white shadow-lg overflow-hidden">
                 <button
                   onClick={() => { setDropdownOpen(false); setShowLogoutModal(true); }}
-                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign Out

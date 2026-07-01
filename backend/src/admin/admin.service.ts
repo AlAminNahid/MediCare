@@ -13,6 +13,7 @@ import { Chamber } from '../entities/chamber.entity';
 import { Medicine } from '../entities/medicine.entity';
 import { Backup } from '../entities/backup.entity';
 import { Login } from '../entities/login.entity';
+import { Feedback, FeedbackStatus } from '../entities/feedback.entity';
 import { UpdateAdminProfileDto } from './dto/update-admin-profile.dto';
 import { AddMedicineDto } from './dto/add-medicine.dto';
 
@@ -27,6 +28,7 @@ export class AdminService {
     @InjectRepository(Medicine) private medicineRepo: Repository<Medicine>,
     @InjectRepository(Backup) private backupRepo: Repository<Backup>,
     @InjectRepository(Login) private loginRepo: Repository<Login>,
+    @InjectRepository(Feedback) private feedbackRepo: Repository<Feedback>,
     private dataSource: DataSource,
   ) {}
 
@@ -119,6 +121,20 @@ export class AdminService {
     if (!backup) throw new NotFoundException('Backup not found');
     await this.backupRepo.remove(backup);
     return { message: 'Backup deleted' };
+  }
+
+  getFeedbacks() {
+    return this.feedbackRepo.find({
+      relations: { doctor: true, patient: true },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async markFeedbackReviewed(feedbackId: number) {
+    const fb = await this.feedbackRepo.findOne({ where: { feedbackId } });
+    if (!fb) throw new NotFoundException('Feedback not found');
+    fb.status = FeedbackStatus.REVIEWED;
+    return this.feedbackRepo.save(fb);
   }
 
   async generateSqlDump(): Promise<string> {

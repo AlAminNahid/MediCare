@@ -16,8 +16,8 @@ interface Stats {
 }
 
 const quickLinks = [
-  { label: 'Manage Doctors', href: '/dashboard/admin/doctors', icon: <Stethoscope className="h-5 w-5 text-blue-600" />, bg: 'bg-blue-50' },
-  { label: 'Manage Patients', href: '/dashboard/admin/patients', icon: <Users className="h-5 w-5 text-green-600" />, bg: 'bg-green-50' },
+  { label: 'View Doctors', href: '/dashboard/admin/doctors', icon: <Stethoscope className="h-5 w-5 text-blue-600" />, bg: 'bg-blue-50' },
+  { label: 'View Patients', href: '/dashboard/admin/patients', icon: <Users className="h-5 w-5 text-green-600" />, bg: 'bg-green-50' },
   { label: 'Appointments', href: '/dashboard/admin/appointments', icon: <CalendarDays className="h-5 w-5 text-purple-600" />, bg: 'bg-purple-50' },
   { label: 'Medicines', href: '/dashboard/admin/medicines', icon: <Pill className="h-5 w-5 text-orange-600" />, bg: 'bg-orange-50' },
 ];

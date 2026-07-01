@@ -37,4 +37,8 @@ export const adminApi = {
     URL.revokeObjectURL(url);
     return fileName;
   },
+
+  getFeedbacks: () => request('/admin/feedback'),
+  markFeedbackReviewed: (id: number) =>
+    request(`/admin/feedback/${id}/reviewed`, { method: 'PATCH' }),
 };

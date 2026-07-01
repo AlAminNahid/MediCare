@@ -17,6 +17,8 @@ import { Chamber } from './entities/chamber.entity';
 import { Backup } from './entities/backup.entity';
 import { Medicine } from './entities/medicine.entity';
 import { Prescription } from './entities/prescription.entity';
+import { PrescriptionMedicine } from './entities/prescription_medicine.entity';
+import { Feedback } from './entities/feedback.entity';
 
 @Module({
   imports: [
@@ -41,8 +43,10 @@ import { Prescription } from './entities/prescription.entity';
           Backup,
           Medicine,
           Prescription,
+          PrescriptionMedicine,
+          Feedback,
         ],
-        synchronize: true, // Set to false and use migrations in production
+        synchronize: true,
         logging: false,
       }),
     }),

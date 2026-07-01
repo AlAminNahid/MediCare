@@ -18,6 +18,8 @@ export const doctorApi = {
   getPatients: () => request('/doctor/patients'),
 
   getMedicines: () => request('/doctor/medicines'),
+  searchMedicines: (q: string) =>
+    request(`/doctor/medicines?search=${encodeURIComponent(q)}`),
   createPrescription: (data: object) =>
     request('/doctor/prescriptions', { method: 'POST', body: JSON.stringify(data) }),
   getPrescriptions: () => request('/doctor/prescriptions'),
@@ -28,4 +30,7 @@ export const doctorApi = {
   updateChamber: (id: number, data: object) =>
     request(`/doctor/chambers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteChamber: (id: number) => request(`/doctor/chambers/${id}`, { method: 'DELETE' }),
+
+  submitFeedback: (data: object) =>
+    request('/doctor/feedback', { method: 'POST', body: JSON.stringify(data) }),
 };

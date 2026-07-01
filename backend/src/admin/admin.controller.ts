@@ -100,4 +100,14 @@ export class AdminController {
   deleteBackup(@Param('id', ParseIntPipe) id: number) {
     return this.adminService.deleteBackup(id);
   }
+
+  @Get('feedback')
+  getFeedbacks() {
+    return this.adminService.getFeedbacks();
+  }
+
+  @Patch('feedback/:id/reviewed')
+  markFeedbackReviewed(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.markFeedbackReviewed(id);
+  }
 }

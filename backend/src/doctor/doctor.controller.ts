@@ -63,8 +63,8 @@ export class DoctorController {
   }
 
   @Get('medicines')
-  getMedicines() {
-    return this.doctorService.getMedicines();
+  getMedicines(@Query('search') search?: string) {
+    return this.doctorService.getMedicines(search);
   }
 
   @Post('prescriptions')
@@ -75,5 +75,10 @@ export class DoctorController {
   @Get('prescriptions')
   getPrescriptions(@Request() req) {
     return this.doctorService.getPrescriptions(req.user.doctorId);
+  }
+
+  @Post('feedback')
+  submitFeedback(@Request() req, @Body() body: { subject: string; message: string }) {
+    return this.doctorService.submitFeedback(req.user.doctorId, body);
   }
 }

@@ -4,6 +4,7 @@ export interface Doctor {
   phoneNumber: string;
   specialization: string;
   visitFee: number;
+  degrees: string[];
 }
 
 export interface Patient {
@@ -54,13 +55,31 @@ export interface Backup {
   createdBy: string;
 }
 
+export interface PrescriptionMedicine {
+  medicineName: string;
+  dosage: string;
+  duration: string;
+}
+
 export interface Prescription {
   prescriptionId: number;
-  patient: { fullName: string };
-  doctor: { fullName: string };
-  medicines: { name: string; dosage: string; duration: string }[];
+  patient: { fullName: string; age?: number; gender?: string };
+  doctor: { fullName: string; specialization: string; degrees: string[] };
+  chamber?: { name: string; address: string };
+  date: string;
   notes: string;
+  medicines: PrescriptionMedicine[];
+}
+
+export interface Feedback {
+  feedbackId: number;
+  senderRole: 'doctor' | 'patient';
+  subject: string;
+  message: string;
+  status: 'pending' | 'reviewed';
   createdAt: string;
+  doctor?: { fullName: string };
+  patient?: { fullName: string };
 }
 
 export type NavItem = {

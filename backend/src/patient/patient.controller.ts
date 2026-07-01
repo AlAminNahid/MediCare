@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -34,8 +35,8 @@ export class PatientController {
   }
 
   @Get('doctors')
-  getDoctors() {
-    return this.patientService.getDoctors();
+  getDoctors(@Query('location') location?: string) {
+    return this.patientService.getDoctors(location);
   }
 
   @Get('doctors/:doctorId/chambers')
@@ -61,5 +62,10 @@ export class PatientController {
   @Get('prescriptions')
   getPrescriptions(@Request() req) {
     return this.patientService.getPrescriptions(req.user.patientId);
+  }
+
+  @Post('feedback')
+  submitFeedback(@Request() req, @Body() body: { subject: string; message: string }) {
+    return this.patientService.submitFeedback(req.user.patientId, body);
   }
 }

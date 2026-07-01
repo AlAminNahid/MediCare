@@ -6,7 +6,7 @@ import {
   CalendarPlus,
   CalendarDays,
   FileText,
-  UserCircle,
+  Settings,
 } from 'lucide-react';
 
 const navItems = [
@@ -14,7 +14,7 @@ const navItems = [
   { label: 'Book Appointment', href: '/dashboard/patient/book-appointment', icon: <CalendarPlus className="h-4 w-4" /> },
   { label: 'My Appointments', href: '/dashboard/patient/appointments', icon: <CalendarDays className="h-4 w-4" /> },
   { label: 'My Prescriptions', href: '/dashboard/patient/prescriptions', icon: <FileText className="h-4 w-4" /> },
-  { label: 'My Profile', href: '/dashboard/patient/profile', icon: <UserCircle className="h-4 w-4" /> },
+  { label: 'Settings', href: '/dashboard/patient/settings', icon: <Settings className="h-4 w-4" /> },
 ];
 
 export default function PatientLayout({ children }: { children: React.ReactNode }) {

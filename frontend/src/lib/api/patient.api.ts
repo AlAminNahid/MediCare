@@ -5,7 +5,10 @@ export const patientApi = {
   updateProfile: (data: object) =>
     request('/patient/profile', { method: 'PATCH', body: JSON.stringify(data) }),
 
-  getDoctors: () => request('/patient/doctors'),
+  getDoctors: (location?: string) => {
+    const qs = location ? `?location=${encodeURIComponent(location)}` : '';
+    return request(`/patient/doctors${qs}`);
+  },
   getChambers: (doctorId: number) => request(`/patient/doctors/${doctorId}/chambers`),
   bookAppointment: (data: object) =>
     request('/patient/appointments', { method: 'POST', body: JSON.stringify(data) }),
@@ -14,4 +17,7 @@ export const patientApi = {
     request(`/patient/appointments/${id}/cancel`, { method: 'PATCH' }),
 
   getPrescriptions: () => request('/patient/prescriptions'),
+
+  submitFeedback: (data: object) =>
+    request('/patient/feedback', { method: 'POST', body: JSON.stringify(data) }),
 };
