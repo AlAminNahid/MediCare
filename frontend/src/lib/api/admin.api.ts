@@ -13,7 +13,11 @@ export const adminApi = {
   getMedicines: () => request('/admin/medicines'),
   addMedicine: (data: object) =>
     request('/admin/medicines', { method: 'POST', body: JSON.stringify(data) }),
+  updateMedicine: (id: number, data: object) =>
+    request(`/admin/medicines/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteMedicine: (id: number) => request(`/admin/medicines/${id}`, { method: 'DELETE' }),
+  searchExternalMedicines: (q: string) =>
+    request(`/admin/medicines/external-search?q=${encodeURIComponent(q)}`),
 
   getBackups: () => request('/admin/backups'),
   createBackup: (fileName: string) =>

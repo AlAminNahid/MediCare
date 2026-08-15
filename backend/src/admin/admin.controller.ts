@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Request,
   Res,
   UseGuards,
@@ -19,6 +20,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../entities/login.entity';
 import { UpdateAdminProfileDto } from './dto/update-admin-profile.dto';
 import { AddMedicineDto } from './dto/add-medicine.dto';
+import { UpdateMedicineDto } from './dto/update-medicine.dto';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -70,6 +72,17 @@ export class AdminController {
     return this.adminService.addMedicine(dto);
   }
 
+  // External medicine lookup (search-and-prefill only)
+  @Get('medicines/external-search')
+  searchExternalMedicines(@Query('q') q?: string) {
+    return this.adminService.searchExternalMedicines(q || '');
+  }
+
+  @Patch('medicines/:id')
+  updateMedicine(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateMedicineDto) {
+    return this.adminService.updateMedicine(id, dto);
+  }
+
   @Delete('medicines/:id')
   deleteMedicine(@Param('id', ParseIntPipe) id: number) {
     return this.adminService.deleteMedicine(id);
@@ -84,7 +97,10 @@ export class AdminController {
   @Get('backups/download')
   async downloadBackup(@Res() res: Response) {
     const sql = await this.adminService.generateSqlDump();
-    const ts = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 15);
+    const ts = new Date()
+      .toISOString()
+      .replace(/[-:T.]/g, '')
+      .slice(0, 15);
     const fileName = `backup_${ts}.sql`;
     res.setHeader('Content-Type', 'application/sql');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);

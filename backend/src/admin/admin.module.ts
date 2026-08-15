@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HttpModule } from '@nestjs/axios';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { Admin } from '../entities/admin.entity';
@@ -25,6 +26,7 @@ import { Feedback } from '../entities/feedback.entity';
       Login,
       Feedback,
     ]),
+    HttpModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],
