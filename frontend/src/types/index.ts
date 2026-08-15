@@ -70,8 +70,11 @@ export interface Prescription {
   prescriptionId: number;
   patient: { fullName: string; age?: number; gender?: string };
   doctor: { fullName: string; specialization: string; degrees: DoctorDegree[] };
+  chamberId?: number;
   chamber?: { name: string; address: string };
   date: string;
+  diagnosis?: string;
+  tests?: string[];
   notes: string;
   medicines: PrescriptionMedicine[];
 }

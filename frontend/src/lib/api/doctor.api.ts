@@ -22,6 +22,8 @@ export const doctorApi = {
     request(`/doctor/medicines?search=${encodeURIComponent(q)}`),
   createPrescription: (data: object) =>
     request('/doctor/prescriptions', { method: 'POST', body: JSON.stringify(data) }),
+  updatePrescription: (id: number, data: object) =>
+    request(`/doctor/prescriptions/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   getPrescriptions: () => request('/doctor/prescriptions'),
 
   getChambers: () => request('/doctor/chambers'),

@@ -18,3 +18,19 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+@media print {
+  body.printing-rx * {
+    visibility: hidden;
+  }
+  body.printing-rx .rx-print-target,
+  body.printing-rx .rx-print-target * {
+    visibility: visible;
+  }
+  body.printing-rx .rx-print-target {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

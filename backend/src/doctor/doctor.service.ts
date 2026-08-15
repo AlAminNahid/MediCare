@@ -12,6 +12,7 @@ import { Login } from '../entities/login.entity';
 import { Feedback, FeedbackSenderRole } from '../entities/feedback.entity';
 import { UpdateDoctorProfileDto } from './dto/update-doctor-profile.dto';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
+import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
 
 @Injectable()
 export class DoctorService {
@@ -107,6 +108,8 @@ export class DoctorService {
       patientId: dto.patientId,
       chamberId: dto.chamberId,
       date: dto.date,
+      diagnosis: dto.diagnosis,
+      tests: dto.tests,
       notes: dto.notes,
     });
     const saved = await this.prescriptionRepo.save(prescription);
@@ -124,10 +127,42 @@ export class DoctorService {
     return saved;
   }
 
+  async updatePrescription(doctorId: number, prescriptionId: number, dto: UpdatePrescriptionDto) {
+    const prescription = await this.prescriptionRepo.findOne({
+      where: { prescriptionId, doctorId },
+    });
+    if (!prescription) throw new NotFoundException('Prescription not found');
+
+    if (dto.chamberId !== undefined) prescription.chamberId = dto.chamberId;
+    if (dto.date !== undefined) prescription.date = dto.date;
+    if (dto.diagnosis !== undefined) prescription.diagnosis = dto.diagnosis;
+    if (dto.tests !== undefined) prescription.tests = dto.tests;
+    if (dto.notes !== undefined) prescription.notes = dto.notes;
+    await this.prescriptionRepo.save(prescription);
+
+    if (dto.medicines !== undefined) {
+      await this.prescriptionMedicineRepo.delete({ prescriptionId });
+      const medicines = dto.medicines.map((m) =>
+        this.prescriptionMedicineRepo.create({
+          prescriptionId,
+          medicineName: m.medicineName,
+          dosage: m.dosage,
+          duration: m.duration,
+        }),
+      );
+      await this.prescriptionMedicineRepo.save(medicines);
+    }
+
+    return this.prescriptionRepo.findOne({
+      where: { prescriptionId },
+      relations: { doctor: true, patient: true, chamber: true, medicines: true },
+    });
+  }
+
   getPrescriptions(doctorId: number) {
     return this.prescriptionRepo.find({
       where: { doctorId },
-      relations: { patient: true, chamber: true, medicines: true },
+      relations: { doctor: true, patient: true, chamber: true, medicines: true },
       order: { date: 'DESC' },
     });
   }

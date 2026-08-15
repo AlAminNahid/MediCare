@@ -29,6 +29,12 @@ export class Prescription {
   date: string;
 
   @Column({ type: 'text', nullable: true })
+  diagnosis: string;
+
+  @Column({ type: 'simple-array', nullable: true })
+  tests: string[];
+
+  @Column({ type: 'text', nullable: true })
   notes: string;
 
   @ManyToOne(() => Doctor, (doctor) => doctor.prescriptions, { onDelete: 'CASCADE' })

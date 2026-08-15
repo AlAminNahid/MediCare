@@ -17,6 +17,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../entities/login.entity';
 import { UpdateDoctorProfileDto } from './dto/update-doctor-profile.dto';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
+import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
 import { AppointmentStatus } from '../entities/appointment.entity';
 
 @Controller('doctor')
@@ -75,6 +76,15 @@ export class DoctorController {
   @Get('prescriptions')
   getPrescriptions(@Request() req) {
     return this.doctorService.getPrescriptions(req.user.doctorId);
+  }
+
+  @Patch('prescriptions/:id')
+  updatePrescription(
+    @Request() req,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdatePrescriptionDto,
+  ) {
+    return this.doctorService.updatePrescription(req.user.doctorId, id, dto);
   }
 
   @Post('feedback')
