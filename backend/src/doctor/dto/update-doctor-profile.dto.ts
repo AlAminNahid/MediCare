@@ -1,4 +1,21 @@
-import { IsArray, IsEmail, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEmail,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
+
+class DegreeDto {
+  @IsString()
+  degree: string;
+
+  @IsString()
+  institution: string;
+}
 
 export class UpdateDoctorProfileDto {
   @IsOptional()
@@ -23,8 +40,9 @@ export class UpdateDoctorProfileDto {
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  degrees?: string[];
+  @ValidateNested({ each: true })
+  @Type(() => DegreeDto)
+  degrees?: DegreeDto[];
 
   @IsOptional()
   @IsString()

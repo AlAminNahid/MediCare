@@ -1,10 +1,15 @@
+export interface DoctorDegree {
+  degree: string;
+  institution: string;
+}
+
 export interface Doctor {
   doctorId: number;
   fullName: string;
   phoneNumber: string;
   specialization: string;
   visitFee: number;
-  degrees: string[];
+  degrees: DoctorDegree[];
 }
 
 export interface Patient {
@@ -64,7 +69,7 @@ export interface PrescriptionMedicine {
 export interface Prescription {
   prescriptionId: number;
   patient: { fullName: string; age?: number; gender?: string };
-  doctor: { fullName: string; specialization: string; degrees: string[] };
+  doctor: { fullName: string; specialization: string; degrees: DoctorDegree[] };
   chamber?: { name: string; address: string };
   date: string;
   notes: string;

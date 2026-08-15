@@ -2,6 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Appointment } from './appointment.entity';
 import { Chamber } from './chamber.entity';
 import { Prescription } from './prescription.entity';
+import { decimalTransformer } from '../common/transformers/decimal.transformer';
+import { degreesTransformer } from '../common/transformers/degrees.transformer';
 
 @Entity('doctor')
 export class Doctor {
@@ -17,11 +19,11 @@ export class Doctor {
   @Column({ length: 100, nullable: true })
   specialization: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true, transformer: decimalTransformer })
   visitFee: number;
 
-  @Column({ type: 'simple-array', nullable: true })
-  degrees: string[];
+  @Column({ type: 'text', nullable: true, transformer: degreesTransformer })
+  degrees: { degree: string; institution: string }[];
 
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)
   appointments: Appointment[];

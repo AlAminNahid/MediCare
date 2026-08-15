@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FileText, Plus, X, Check, GraduationCap, Building2, Calendar, Pill, Trash2, Search } from 'lucide-react';
 import { api } from '@/lib/api';
+import type { DoctorDegree } from '@/types';
 
 interface PrescriptionMedicine { medicineName: string; dosage: string; duration: string }
 
 interface Prescription {
   prescriptionId: number;
   patient: { fullName: string; age?: number; gender?: string };
-  doctor: { fullName: string; specialization: string; degrees: string[] };
+  doctor: { fullName: string; specialization: string; degrees: DoctorDegree[] };
   chamber?: { name: string; address: string };
   date: string;
   notes: string;
@@ -51,7 +52,7 @@ export default function DoctorPrescriptionsPage() {
       api.doctor.getChambers(),
     ]).then(([rx, pt, ch]) => {
       setPrescriptions(rx as Prescription[]);
-      setPatients((pt as any[]).filter(p => p.p_patientid != null).map((p) => ({ patientId: p.p_patientid, fullName: p.p_fullname })));
+      setPatients(pt as Patient[]);
       setChambers(ch as Chamber[]);
     }).finally(() => setLoading(false));
   }, []);
@@ -265,7 +266,7 @@ export default function DoctorPrescriptionsPage() {
 }
 
 function PrescriptionSlip({ rx }: { rx: Prescription }) {
-  const degrees = Array.isArray(rx.doctor?.degrees) ? rx.doctor.degrees.join(', ') : '';
+  const degrees = Array.isArray(rx.doctor?.degrees) ? rx.doctor.degrees.map(d => d.degree).join(', ') : '';
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden print:shadow-none">
       {/* Header — mimics prescription letterhead */}

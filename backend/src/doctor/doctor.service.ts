@@ -78,13 +78,16 @@ export class DoctorService {
     return this.appointmentRepo.save(appointment);
   }
 
-  getPatients(doctorId: number) {
-    return this.appointmentRepo
-      .createQueryBuilder('a')
-      .select('DISTINCT p.*')
-      .innerJoin('a.patient', 'p')
-      .where('a.doctorId = :doctorId', { doctorId })
-      .getRawMany();
+  async getPatients(doctorId: number) {
+    const appointments = await this.appointmentRepo.find({
+      where: { doctorId },
+      relations: { patient: true },
+    });
+    const byId = new Map<number, Patient>();
+    for (const a of appointments) {
+      if (a.patient) byId.set(a.patient.patientId, a.patient);
+    }
+    return Array.from(byId.values());
   }
 
   getMedicines(search?: string) {

@@ -3,15 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Users } from 'lucide-react';
 import { api } from '@/lib/api';
-
-interface Patient {
-  p_patientid: number;
-  p_fullname: string;
-  p_phonenumber: string;
-  p_age: number;
-  p_gender: string;
-  p_address: string;
-}
+import type { Patient } from '@/types';
 
 export default function DoctorPatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -55,15 +47,15 @@ export default function DoctorPatientsPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {patients.map((p, i) => (
-                <tr key={i} className="hover:bg-slate-50">
+                <tr key={p.patientId} className="hover:bg-slate-50">
                   <td className="px-5 py-4 text-slate-400">{i + 1}</td>
-                  <td className="px-5 py-4 font-medium text-slate-900">{p.p_fullname}</td>
-                  <td className="px-5 py-4 text-slate-600">{p.p_phonenumber}</td>
-                  <td className="px-5 py-4 text-slate-600">{p.p_age}</td>
+                  <td className="px-5 py-4 font-medium text-slate-900">{p.fullName}</td>
+                  <td className="px-5 py-4 text-slate-600">{p.phoneNumber}</td>
+                  <td className="px-5 py-4 text-slate-600">{p.age}</td>
                   <td className="px-5 py-4">
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${genderBadge(p.p_gender)}`}>{p.p_gender}</span>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${genderBadge(p.gender)}`}>{p.gender}</span>
                   </td>
-                  <td className="px-5 py-4 text-slate-600 max-w-xs truncate">{p.p_address}</td>
+                  <td className="px-5 py-4 text-slate-600 max-w-xs truncate">{p.address}</td>
                 </tr>
               ))}
             </tbody>

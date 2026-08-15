@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import { FileText, Building2, Calendar, GraduationCap } from 'lucide-react';
 import { api } from '@/lib/api';
+import type { DoctorDegree } from '@/types';
 
 interface PrescriptionMedicine { medicineName: string; dosage: string; duration: string }
 interface Prescription {
   prescriptionId: number;
-  doctor: { fullName: string; specialization: string; degrees: string[] };
+  doctor: { fullName: string; specialization: string; degrees: DoctorDegree[] };
   chamber?: { name: string; address: string };
   date: string;
   notes: string;
@@ -43,7 +44,7 @@ export default function PatientPrescriptionsPage() {
       ) : (
         <div className="space-y-5">
           {prescriptions.map((rx) => {
-            const degrees = Array.isArray(rx.doctor?.degrees) ? rx.doctor.degrees.join(', ') : '';
+            const degrees = Array.isArray(rx.doctor?.degrees) ? rx.doctor.degrees.map(d => d.degree).join(', ') : '';
             return (
               <div key={rx.prescriptionId} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
                 {/* Prescription header — letterhead */}

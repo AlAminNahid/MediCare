@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { CalendarPlus, Check, Stethoscope, Building2, Search, X, GraduationCap } from 'lucide-react';
 import { api } from '@/lib/api';
-import type { Chamber } from '@/types';
+import type { Chamber, DoctorDegree } from '@/types';
 
 interface Doctor {
   doctorId: number;
@@ -11,7 +11,7 @@ interface Doctor {
   specialization: string;
   visitFee: number;
   phoneNumber: string;
-  degrees: string[];
+  degrees: DoctorDegree[];
 }
 
 export default function BookAppointmentPage() {
@@ -157,8 +157,8 @@ export default function BookAppointmentPage() {
                       {Array.isArray(doc.degrees) && doc.degrees.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {doc.degrees.map(d => (
-                            <span key={d} className="flex items-center gap-0.5 rounded-full bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-600">
-                              <GraduationCap className="h-2.5 w-2.5" />{d}
+                            <span key={d.degree} className="flex items-center gap-0.5 rounded-full bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-600">
+                              <GraduationCap className="h-2.5 w-2.5" />{d.degree}
                             </span>
                           ))}
                         </div>

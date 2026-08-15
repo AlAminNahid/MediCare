@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Doctor } from './doctor.entity';
 import { Appointment } from './appointment.entity';
+import { decimalTransformer } from '../common/transformers/decimal.transformer';
 
 export enum DayOfWeek {
   MON = 'Mon',
@@ -43,7 +44,7 @@ export class Chamber {
   @Column({ type: 'time' })
   endTime: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true, transformer: decimalTransformer })
   visitFee: number;
 
   @ManyToOne(() => Doctor, (doctor) => doctor.chambers, { onDelete: 'CASCADE' })
