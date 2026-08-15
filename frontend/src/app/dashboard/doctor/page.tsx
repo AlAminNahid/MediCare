@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CalendarDays, Users, FileText, Clock, ArrowRight, Stethoscope, Phone, Wallet, RefreshCw } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 import Skeleton from '@/components/ui/Skeleton';
 import type { Appointment } from '@/types';
+import { APPOINTMENT_STATUS_COLORS as STATUS_COLORS } from '@/constants/appointments';
 
 interface Profile {
   fullName?: string;
@@ -20,14 +21,6 @@ const quickLinks = [
   { label: 'Prescriptions', href: '/dashboard/doctor/prescriptions', icon: <FileText className="h-5 w-5 text-blue-600" />, bg: 'bg-blue-50' },
   { label: 'Chambers', href: '/dashboard/doctor/chambers', icon: <Clock className="h-5 w-5 text-orange-600" />, bg: 'bg-orange-50' },
 ];
-
-const STATUS_COLORS: Record<string, string> = {
-  Waiting: 'bg-blue-50 text-blue-700',
-  Serving: 'bg-amber-50 text-amber-700',
-  Done: 'bg-green-50 text-green-700',
-  Cancelled: 'bg-red-50 text-red-700',
-  'No Show': 'bg-slate-100 text-slate-500',
-};
 
 const QUEUE_PREVIEW_LIMIT = 8;
 

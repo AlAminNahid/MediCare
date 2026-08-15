@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { HardDrive, Plus, Trash2, Download } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
 interface Backup {

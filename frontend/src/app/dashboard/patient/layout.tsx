@@ -1,6 +1,6 @@
 'use client';
 
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
 import {
   LayoutDashboard,
   CalendarPlus,

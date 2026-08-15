@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Save, CheckCircle, AlertCircle, Eye, EyeOff, Pencil } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 
 interface AdminProfile { fullName: string; email: string; phoneNumber: string }
 type Tab = 'profile' | 'password' | 'plan';

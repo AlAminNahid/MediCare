@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pill, Plus, Trash2, X, Check, Search, Pencil } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useDebouncedSearch } from '@/hooks/useDebouncedSearch';
 import type { Medicine } from '@/types';
 
 interface ExternalMedicineSuggestion {
@@ -27,32 +28,22 @@ export default function AdminMedicinesPage() {
   const [error, setError] = useState('');
 
   // External medicine lookup typeahead (search-and-prefill only)
-  const [suggestions, setSuggestions] = useState<ExternalMedicineSuggestion[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const {
+    results: suggestions,
+    showResults: showSuggestions,
+    setShowResults: setShowSuggestions,
+    search: searchExternal,
+    reset: resetSuggestions,
+  } = useDebouncedSearch<ExternalMedicineSuggestion>(
+    (q) => api.admin.searchExternalMedicines(q) as Promise<ExternalMedicineSuggestion[]>,
+    { minLength: 3 },
+  );
 
   useEffect(() => {
     api.admin
       .getMedicines()
       .then((d) => setMedicines(d as Medicine[]))
       .finally(() => setLoading(false));
-  }, []);
-
-  const searchExternal = useCallback((q: string) => {
-    if (searchTimer.current) clearTimeout(searchTimer.current);
-    if (q.trim().length < 3) {
-      setSuggestions([]);
-      return;
-    }
-    searchTimer.current = setTimeout(async () => {
-      try {
-        const results = await api.admin.searchExternalMedicines(q) as ExternalMedicineSuggestion[];
-        setSuggestions(results);
-        setShowSuggestions(true);
-      } catch {
-        setSuggestions([]);
-      }
-    }, 300);
   }, []);
 
   const handleNameChange = (value: string) => {
@@ -62,8 +53,7 @@ export default function AdminMedicinesPage() {
 
   const pickSuggestion = (sug: ExternalMedicineSuggestion) => {
     setForm({ ...form, name: sug.name, manufacturerName: sug.company });
-    setShowSuggestions(false);
-    setSuggestions([]);
+    resetSuggestions();
   };
 
   const closeModal = () => {
@@ -71,8 +61,7 @@ export default function AdminMedicinesPage() {
     setEditingId(null);
     setError('');
     setForm(emptyForm);
-    setSuggestions([]);
-    setShowSuggestions(false);
+    resetSuggestions();
   };
 
   const openEdit = (m: Medicine) => {

@@ -6,6 +6,8 @@ import { AdminModule } from './admin/admin.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { PatientModule } from './patient/patient.module';
 import { ChamberModule } from './chamber/chamber.module';
+import { HealthModule } from './health/health.module';
+import { validateEnv } from './config/env.validation';
 
 // Entities
 import { Admin } from './entities/admin.entity';
@@ -22,7 +24,7 @@ import { Feedback } from './entities/feedback.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -55,6 +57,7 @@ import { Feedback } from './entities/feedback.entity';
     DoctorModule,
     PatientModule,
     ChamberModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

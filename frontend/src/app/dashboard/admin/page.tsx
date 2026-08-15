@@ -4,9 +4,10 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Stethoscope, Users, CalendarDays, Pill, Building2, ArrowRight, TrendingUp, RefreshCw } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 import Skeleton from '@/components/ui/Skeleton';
 import type { Appointment } from '@/types';
+import { APPOINTMENT_STATUS_COLORS as STATUS_COLORS } from '@/constants/appointments';
 
 interface TrendPoint {
   date: string;
@@ -22,14 +23,6 @@ interface Stats {
   recentAppointments: Appointment[];
   appointmentTrend: TrendPoint[];
 }
-
-const STATUS_COLORS: Record<string, string> = {
-  Waiting: 'bg-blue-50 text-blue-700',
-  Serving: 'bg-amber-50 text-amber-700',
-  Done: 'bg-green-50 text-green-700',
-  Cancelled: 'bg-red-50 text-red-700',
-  'No Show': 'bg-slate-100 text-slate-500',
-};
 
 const quickLinks = [
   { label: 'View Doctors', href: '/dashboard/admin/doctors', icon: <Stethoscope className="h-5 w-5 text-blue-600" />, bg: 'bg-blue-50' },

@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CalendarPlus, CalendarDays, FileText, ArrowRight, Heart, User, Phone, RefreshCw } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 import Skeleton from '@/components/ui/Skeleton';
 import type { Appointment, Prescription } from '@/types';
+import { APPOINTMENT_STATUS_COLORS as STATUS_COLORS } from '@/constants/appointments';
 
 interface Profile {
   fullName?: string;
@@ -19,14 +20,6 @@ const quickLinks = [
   { label: 'My Appointments', href: '/dashboard/patient/appointments', icon: <CalendarDays className="h-5 w-5 text-purple-600" />, bg: 'bg-purple-50', desc: 'View & manage bookings' },
   { label: 'My Prescriptions', href: '/dashboard/patient/prescriptions', icon: <FileText className="h-5 w-5 text-green-600" />, bg: 'bg-green-50', desc: 'Digital prescriptions' },
 ];
-
-const STATUS_COLORS: Record<string, string> = {
-  Waiting: 'bg-blue-50 text-blue-700',
-  Serving: 'bg-amber-50 text-amber-700',
-  Done: 'bg-green-50 text-green-700',
-  Cancelled: 'bg-red-50 text-red-700',
-  'No Show': 'bg-slate-100 text-slate-500',
-};
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);

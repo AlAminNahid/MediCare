@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Building2, Plus, Trash2, X, Check, Pencil, AlertTriangle } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 import type { Chamber } from '@/types';
 
 const ALL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];

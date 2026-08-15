@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Activity, Eye, EyeOff } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 
 // ── validation ──────────────────────────────────────────────────────────────
 const validateEmail = (v: string) => {

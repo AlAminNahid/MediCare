@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { MessageSquare, CheckCircle, Clock, Stethoscope, User } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 
 interface Feedback {
   feedbackId: number;

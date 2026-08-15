@@ -2,18 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { CalendarDays } from 'lucide-react';
-import { api } from '@/lib/api';
-import type { Appointment, AppointmentStatus } from '@/types';
-
-const STATUS_COLORS: Record<string, string> = {
-  Waiting: 'bg-blue-50 text-blue-700',
-  Serving: 'bg-amber-50 text-amber-700',
-  Done: 'bg-green-50 text-green-700',
-  Cancelled: 'bg-red-50 text-red-700',
-  'No Show': 'bg-slate-100 text-slate-500',
-};
-
-const ALL_STATUSES: AppointmentStatus[] = ['Waiting', 'Serving', 'Done', 'Cancelled', 'No Show'];
+import { api } from '@/services';
+import type { Appointment } from '@/types';
+import {
+  APPOINTMENT_STATUS_COLORS as STATUS_COLORS,
+  APPOINTMENT_STATUSES as ALL_STATUSES,
+} from '@/constants/appointments';
 
 export default function AdminAppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);

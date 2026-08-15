@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FileText, Plus, X, Check, Pill, Trash2, Search } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 import type { Prescription, PrescriptionMedicine } from '@/types';
-import PrescriptionSlip from '@/components/PrescriptionSlip';
+import PrescriptionSlip from '@/components/features/prescriptions/PrescriptionSlip';
 
 interface Patient { patientId: number; fullName: string }
 interface Chamber { chamberId: number; name: string; address: string }

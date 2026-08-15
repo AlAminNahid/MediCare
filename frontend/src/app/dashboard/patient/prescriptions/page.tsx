@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { FileText } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 import type { Prescription } from '@/types';
-import PrescriptionSlip from '@/components/PrescriptionSlip';
+import PrescriptionSlip from '@/components/features/prescriptions/PrescriptionSlip';
 
 export default function PatientPrescriptionsPage() {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);

@@ -13,7 +13,7 @@ import {
   GraduationCap,
   Send,
 } from "lucide-react";
-import { api } from "@/lib/api";
+import { api } from "@/services";
 import type { DoctorDegree } from "@/types";
 
 interface DoctorProfile {

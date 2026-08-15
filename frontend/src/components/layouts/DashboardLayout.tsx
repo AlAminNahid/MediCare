@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LogOut, Activity, ChevronDown, AlertTriangle } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 import type { NavItem } from '@/types';
 
 interface DashboardLayoutProps {

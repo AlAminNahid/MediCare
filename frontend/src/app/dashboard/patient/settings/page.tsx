@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Save, CheckCircle, AlertCircle, Eye, EyeOff, Pencil, Send } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 
 interface PatientProfile { fullName: string; email: string; phoneNumber: string; age: number; gender: string; address: string }
 type Tab = 'profile' | 'password' | 'plan' | 'feedback';

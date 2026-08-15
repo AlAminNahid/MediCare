@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { CalendarPlus, Check, Stethoscope, Building2, Search, X, GraduationCap } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api } from '@/services';
 import type { Chamber, DoctorDegree } from '@/types';
 
 interface Doctor {

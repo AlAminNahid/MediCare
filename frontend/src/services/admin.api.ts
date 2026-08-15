@@ -1,4 +1,5 @@
-import { request, API_URL } from './client';
+import { request } from './client';
+import { API_URL } from '@/config/env';
 
 export const adminApi = {
   getDashboard: () => request('/admin/dashboard'),
