@@ -26,6 +26,9 @@ export class Login {
   @Column({ length: 255 })
   password: string;
 
+  @Column({ length: 255, nullable: true })
+  refreshTokenHash: string;
+
   @Column({ type: 'enum', enum: UserRole })
   role: UserRole;
 

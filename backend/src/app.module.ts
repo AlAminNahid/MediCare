@@ -46,7 +46,7 @@ import { Feedback } from './entities/feedback.entity';
           PrescriptionMedicine,
           Feedback,
         ],
-        synchronize: true,
+        synchronize: false,
         logging: false,
       }),
     }),

@@ -1,11 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CalendarPlus, CalendarDays, FileText, ArrowRight, Heart } from 'lucide-react';
+import { CalendarPlus, CalendarDays, FileText, ArrowRight, Heart, User, Phone, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 import Skeleton from '@/components/ui/Skeleton';
+import type { Appointment, Prescription } from '@/types';
+
+interface Profile {
+  fullName?: string;
+  age?: number;
+  gender?: string;
+  phoneNumber?: string;
+}
 
 const quickLinks = [
   { label: 'Book Appointment', href: '/dashboard/patient/book-appointment', icon: <CalendarPlus className="h-5 w-5 text-indigo-600" />, bg: 'bg-indigo-50', desc: 'Schedule with a doctor' },
@@ -13,18 +20,45 @@ const quickLinks = [
   { label: 'My Prescriptions', href: '/dashboard/patient/prescriptions', icon: <FileText className="h-5 w-5 text-green-600" />, bg: 'bg-green-50', desc: 'Digital prescriptions' },
 ];
 
+const STATUS_COLORS: Record<string, string> = {
+  Waiting: 'bg-blue-50 text-blue-700',
+  Serving: 'bg-amber-50 text-amber-700',
+  Done: 'bg-green-50 text-green-700',
+  Cancelled: 'bg-red-50 text-red-700',
+  'No Show': 'bg-slate-100 text-slate-500',
+};
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export default function PatientDashboard() {
-  const router = useRouter();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const loadDashboard = useCallback(() => {
+    setLoading(true);
+    setError('');
+    Promise.all([
+      api.patient.getProfile(),
+      api.patient.getAppointments(),
+      api.patient.getPrescriptions(),
+    ])
+      .then(([p, appts, rx]) => {
+        setProfile(p as Profile);
+        setAppointments(appts as Appointment[]);
+        setPrescriptions(rx as Prescription[]);
+      })
+      .catch(() => setError('Failed to load dashboard data.'))
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
-    api.patient
-      .getProfile()
-      .then(setProfile)
-      .catch(() => router.push('/login'))
-      .finally(() => setLoading(false));
-  }, [router]);
+    loadDashboard();
+  }, [loadDashboard]);
 
   if (loading) {
     return (
@@ -33,10 +67,10 @@ export default function PatientDashboard() {
         <div className="mb-8">
           <Skeleton className="mb-2 h-4 w-24" />
           <Skeleton className="h-8 w-60" />
-          <Skeleton className="mt-2 h-4 w-72" />
+          <Skeleton className="mt-3 h-6 w-32 rounded-full" />
         </div>
 
-        {/* Profile cards skeleton */}
+        {/* Stat cards skeleton */}
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <div key={i} className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
@@ -44,6 +78,12 @@ export default function PatientDashboard() {
               <Skeleton className="h-6 w-20" />
             </div>
           ))}
+        </div>
+
+        {/* Next appointment skeleton */}
+        <Skeleton className="mb-3 h-4 w-40" />
+        <div className="mb-8 rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
+          <Skeleton className="h-16 w-full" />
         </div>
 
         {/* Quick links skeleton */}
@@ -63,6 +103,22 @@ export default function PatientDashboard() {
     );
   }
 
+  const today = todayStr();
+  const upcoming = appointments
+    .filter((a) => a.date >= today && (a.status === 'Waiting' || a.status === 'Serving'))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const nextAppointment = upcoming[0];
+
+  const recentPrescriptions = [...prescriptions]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 3);
+
+  const statCards = [
+    { label: 'Upcoming', value: upcoming.length, accent: 'border-l-indigo-500' },
+    { label: 'Total Appointments', value: appointments.length, accent: 'border-l-purple-500' },
+    { label: 'Prescriptions', value: prescriptions.length, accent: 'border-l-green-500' },
+  ];
+
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -71,22 +127,98 @@ export default function PatientDashboard() {
           Patient Portal
         </div>
         <h1 className="text-2xl font-bold text-slate-900">Welcome, {profile?.fullName || 'Patient'}</h1>
-        <p className="mt-1 text-slate-500">Manage your health appointments and prescriptions.</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {(profile?.age !== undefined || profile?.gender) && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
+              <User className="h-3.5 w-3.5" />
+              {profile?.age !== undefined ? `${profile.age} yrs` : ''}{profile?.age !== undefined && profile?.gender ? ' · ' : ''}{profile?.gender || ''}
+            </span>
+          )}
+          {profile?.phoneNumber && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
+              <Phone className="h-3.5 w-3.5" /> {profile.phoneNumber}
+            </span>
+          )}
+        </div>
       </div>
 
-      {profile && (
-        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {[
-            { label: 'Age', value: profile.age ? `${profile.age} yrs` : '—' },
-            { label: 'Gender', value: profile.gender || '—' },
-            { label: 'Phone', value: profile.phoneNumber || '—' },
-          ].map(({ label, value }) => (
-            <div key={label} className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
-              <p className="text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
-              <p className="mt-1 text-lg font-semibold text-slate-900">{value}</p>
-            </div>
-          ))}
+      {error && (
+        <div className="mb-8 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <span>{error}</span>
+          <button
+            onClick={loadDashboard}
+            className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
+          >
+            <RefreshCw className="h-3.5 w-3.5" /> Retry
+          </button>
         </div>
+      )}
+
+      {/* Stats grid */}
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {statCards.map(({ label, value, accent }) => (
+          <div key={label} className={`rounded-xl border border-slate-100 border-l-4 ${accent} bg-white p-5 shadow-sm`}>
+            <p className="text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
+            <p className="mt-1 text-2xl font-bold text-slate-900">{value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Next appointment */}
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">Next Appointment</h2>
+        {upcoming.length > 0 && (
+          <Link href="/dashboard/patient/appointments" className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800">
+            View all <ArrowRight className="h-3 w-3" />
+          </Link>
+        )}
+      </div>
+      <div className="mb-8 rounded-xl border border-slate-200 bg-white shadow-sm">
+        {nextAppointment ? (
+          <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-600">
+                {nextAppointment.doctor?.fullName?.charAt(0) || 'D'}
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900">{nextAppointment.doctor?.fullName}</p>
+                <p className="text-sm text-slate-500">{nextAppointment.chamber?.name}</p>
+                <p className="mt-1 text-xs text-slate-400">{nextAppointment.date} · Serial #{nextAppointment.serialNumber}</p>
+              </div>
+            </div>
+            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLORS[nextAppointment.status] || 'bg-slate-100 text-slate-600'}`}>
+              {nextAppointment.status}
+            </span>
+          </div>
+        ) : (
+          <div className="py-10 text-center text-slate-400">
+            No upcoming appointments.{' '}
+            <Link href="/dashboard/patient/book-appointment" className="text-indigo-600 hover:underline">Book one now</Link>
+          </div>
+        )}
+      </div>
+
+      {/* Recent prescriptions */}
+      {recentPrescriptions.length > 0 && (
+        <>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">Recent Prescriptions</h2>
+            <Link href="/dashboard/patient/prescriptions" className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800">
+              View all <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="mb-8 divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white shadow-sm">
+            {recentPrescriptions.map((rx) => (
+              <div key={rx.prescriptionId} className="flex items-center justify-between px-6 py-3.5">
+                <div className="flex items-center gap-3">
+                  <FileText className="h-4 w-4 text-green-600" />
+                  <p className="text-sm font-medium text-slate-800">{rx.doctor?.fullName}</p>
+                </div>
+                <p className="text-xs text-slate-400">{rx.date}</p>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       <div className="mb-3">

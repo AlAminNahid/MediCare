@@ -17,4 +17,7 @@ export const authApi = {
 
   forgotPassword: (email: string, newPassword: string) =>
     request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email, newPassword }) }),
+
+  refresh: () => request<{ access_token: string }>('/auth/refresh', { method: 'POST' }),
+  logout: () => request('/auth/logout', { method: 'POST' }),
 };

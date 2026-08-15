@@ -64,6 +64,7 @@ export default function DashboardLayout({ children, requiredRole, navItems, role
   }, []);
 
   const handleLogout = () => {
+    api.logout().catch(() => {});
     localStorage.clear();
     router.push('/login');
   };
