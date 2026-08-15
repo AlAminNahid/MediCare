@@ -19,9 +19,12 @@ export class DoctorService {
   constructor(
     @InjectRepository(Doctor) private doctorRepo: Repository<Doctor>,
     @InjectRepository(Patient) private patientRepo: Repository<Patient>,
-    @InjectRepository(Appointment) private appointmentRepo: Repository<Appointment>,
-    @InjectRepository(Prescription) private prescriptionRepo: Repository<Prescription>,
-    @InjectRepository(PrescriptionMedicine) private prescriptionMedicineRepo: Repository<PrescriptionMedicine>,
+    @InjectRepository(Appointment)
+    private appointmentRepo: Repository<Appointment>,
+    @InjectRepository(Prescription)
+    private prescriptionRepo: Repository<Prescription>,
+    @InjectRepository(PrescriptionMedicine)
+    private prescriptionMedicineRepo: Repository<PrescriptionMedicine>,
     @InjectRepository(Medicine) private medicineRepo: Repository<Medicine>,
     @InjectRepository(Login) private loginRepo: Repository<Login>,
     @InjectRepository(Feedback) private feedbackRepo: Repository<Feedback>,
@@ -40,9 +43,15 @@ export class DoctorService {
 
     if (dto.fullName !== undefined) doctor.fullName = dto.fullName;
     if (dto.phoneNumber !== undefined) doctor.phoneNumber = dto.phoneNumber;
-    if (dto.specialization !== undefined) doctor.specialization = dto.specialization;
+    if (dto.specialization !== undefined)
+      doctor.specialization = dto.specialization;
     if (dto.visitFee !== undefined) doctor.visitFee = dto.visitFee;
-    if (dto.degrees !== undefined) doctor.degrees = dto.degrees;
+    if (dto.degrees !== undefined) {
+      doctor.degrees = dto.degrees.map((degree) => ({
+        degree: degree.degree ?? '',
+        institution: degree.institution ?? '',
+      }));
+    }
     await this.doctorRepo.save(doctor);
 
     const login = await this.loginRepo.findOne({ where: { doctorId } });
@@ -72,7 +81,9 @@ export class DoctorService {
     appointmentId: number,
     dto: { status?: AppointmentStatus; reason?: string },
   ) {
-    const appointment = await this.appointmentRepo.findOne({ where: { appointmentId, doctorId } });
+    const appointment = await this.appointmentRepo.findOne({
+      where: { appointmentId, doctorId },
+    });
     if (!appointment) throw new NotFoundException('Appointment not found');
     if (dto.status !== undefined) appointment.status = dto.status;
     if (dto.reason !== undefined) appointment.reason = dto.reason;
@@ -114,6 +125,10 @@ export class DoctorService {
     });
     const saved = await this.prescriptionRepo.save(prescription);
 
+    if (dto.medicines === undefined || dto.medicines.length === 0) {
+      return saved;
+    }
+
     const medicines = dto.medicines.map((m) =>
       this.prescriptionMedicineRepo.create({
         prescriptionId: saved.prescriptionId,
@@ -127,7 +142,11 @@ export class DoctorService {
     return saved;
   }
 
-  async updatePrescription(doctorId: number, prescriptionId: number, dto: UpdatePrescriptionDto) {
+  async updatePrescription(
+    doctorId: number,
+    prescriptionId: number,
+    dto: UpdatePrescriptionDto,
+  ) {
     const prescription = await this.prescriptionRepo.findOne({
       where: { prescriptionId, doctorId },
     });
@@ -155,19 +174,32 @@ export class DoctorService {
 
     return this.prescriptionRepo.findOne({
       where: { prescriptionId },
-      relations: { doctor: true, patient: true, chamber: true, medicines: true },
+      relations: {
+        doctor: true,
+        patient: true,
+        chamber: true,
+        medicines: true,
+      },
     });
   }
 
   getPrescriptions(doctorId: number) {
     return this.prescriptionRepo.find({
       where: { doctorId },
-      relations: { doctor: true, patient: true, chamber: true, medicines: true },
+      relations: {
+        doctor: true,
+        patient: true,
+        chamber: true,
+        medicines: true,
+      },
       order: { date: 'DESC' },
     });
   }
 
-  async submitFeedback(doctorId: number, dto: { subject: string; message: string }) {
+  async submitFeedback(
+    doctorId: number,
+    dto: { subject: string; message: string },
+  ) {
     const feedback = this.feedbackRepo.create({
       senderRole: FeedbackSenderRole.DOCTOR,
       doctorId,

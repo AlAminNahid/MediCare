@@ -79,7 +79,10 @@ export class AdminController {
   }
 
   @Patch('medicines/:id')
-  updateMedicine(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateMedicineDto) {
+  updateMedicine(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateMedicineDto,
+  ) {
     return this.adminService.updateMedicine(id, dto);
   }
 

@@ -12,7 +12,15 @@ import { Feedback } from '../entities/feedback.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Patient, Appointment, Doctor, Chamber, Prescription, Login, Feedback]),
+    TypeOrmModule.forFeature([
+      Patient,
+      Appointment,
+      Doctor,
+      Chamber,
+      Prescription,
+      Login,
+      Feedback,
+    ]),
   ],
   controllers: [PatientController],
   providers: [PatientService],

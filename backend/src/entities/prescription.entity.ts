@@ -37,11 +37,15 @@ export class Prescription {
   @Column({ type: 'text', nullable: true })
   notes: string;
 
-  @ManyToOne(() => Doctor, (doctor) => doctor.prescriptions, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Doctor, (doctor) => doctor.prescriptions, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'doctorId' })
   doctor: Doctor;
 
-  @ManyToOne(() => Patient, (patient) => patient.prescriptions, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Patient, (patient) => patient.prescriptions, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'patientId' })
   patient: Patient;
 
@@ -49,6 +53,8 @@ export class Prescription {
   @JoinColumn({ name: 'chamberId' })
   chamber: Chamber;
 
-  @OneToMany(() => PrescriptionMedicine, (pm) => pm.prescription, { cascade: true })
+  @OneToMany(() => PrescriptionMedicine, (pm) => pm.prescription, {
+    cascade: true,
+  })
   medicines: PrescriptionMedicine[];
 }

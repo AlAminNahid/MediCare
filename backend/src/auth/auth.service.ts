@@ -37,7 +37,10 @@ export class AuthService {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       signOptions: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d') as any,
+        expiresIn: this.configService.get<string>(
+          'JWT_REFRESH_EXPIRES_IN',
+          '7d',
+        ) as any,
       },
     });
   }
@@ -47,6 +50,10 @@ export class AuthService {
       where: { email: dto.email },
     });
     if (existing) throw new BadRequestException('Email already registered');
+
+    if (!dto.password) {
+      throw new BadRequestException('Password is required');
+    }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const login = this.loginRepo.create({
@@ -90,6 +97,10 @@ export class AuthService {
     const user = await this.loginRepo.findOne({ where: { email: dto.email } });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
+    if (!dto.password) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
     const isMatch = await bcrypt.compare(dto.password, user.password);
     if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
@@ -126,19 +137,23 @@ export class AuthService {
   async refresh(refreshToken: string) {
     let loginId: number;
     try {
-      const decoded = this.refreshJwtService.verify<{ sub: number }>(refreshToken);
+      const decoded = this.refreshJwtService.verify<{ sub: number }>(
+        refreshToken,
+      );
       loginId = decoded.sub;
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
     const user = await this.loginRepo.findOne({ where: { loginId } });
-    if (!user || !user.refreshTokenHash) throw new UnauthorizedException('Invalid refresh token');
+    if (!user || !user.refreshTokenHash)
+      throw new UnauthorizedException('Invalid refresh token');
 
     const matches = await bcrypt.compare(refreshToken, user.refreshTokenHash);
     if (!matches) throw new UnauthorizedException('Invalid refresh token');
 
-    const { accessToken, refreshToken: newRefreshToken } = await this.issueTokens(user);
+    const { accessToken, refreshToken: newRefreshToken } =
+      await this.issueTokens(user);
 
     return {
       access_token: accessToken,
@@ -153,8 +168,13 @@ export class AuthService {
   async logout(refreshToken: string | undefined) {
     if (!refreshToken) return { message: 'Logged out' };
     try {
-      const decoded = this.refreshJwtService.verify<{ sub: number }>(refreshToken);
-      await this.loginRepo.update({ loginId: decoded.sub }, { refreshTokenHash: null as unknown as string });
+      const decoded = this.refreshJwtService.verify<{ sub: number }>(
+        refreshToken,
+      );
+      await this.loginRepo.update(
+        { loginId: decoded.sub },
+        { refreshTokenHash: null as unknown as string },
+      );
     } catch {
       // token already invalid/expired — nothing to revoke
     }
@@ -164,6 +184,10 @@ export class AuthService {
   async forgotPassword(dto: ForgetPasswordDto) {
     const user = await this.loginRepo.findOne({ where: { email: dto.email } });
     if (!user) throw new NotFoundException('Email not found');
+
+    if (!dto.newPassword) {
+      throw new BadRequestException('New password is required');
+    }
 
     user.password = await bcrypt.hash(dto.newPassword, 10);
     await this.loginRepo.save(user);

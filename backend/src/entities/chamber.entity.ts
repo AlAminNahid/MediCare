@@ -44,7 +44,13 @@ export class Chamber {
   @Column({ type: 'time' })
   endTime: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true, transformer: decimalTransformer })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    transformer: decimalTransformer,
+  })
   visitFee: number;
 
   @ManyToOne(() => Doctor, (doctor) => doctor.chambers, { onDelete: 'CASCADE' })

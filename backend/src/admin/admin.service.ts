@@ -174,7 +174,8 @@ export class AdminService {
     if (dto.name !== undefined) medicine.name = dto.name;
     if (dto.type !== undefined) medicine.type = dto.type;
     if (dto.strength !== undefined) medicine.strength = dto.strength;
-    if (dto.manufacturerName !== undefined) medicine.manufacturerName = dto.manufacturerName;
+    if (dto.manufacturerName !== undefined)
+      medicine.manufacturerName = dto.manufacturerName;
 
     return this.medicineRepo.save(medicine);
   }
@@ -187,7 +188,9 @@ export class AdminService {
   }
 
   // External medicine lookup (search-and-prefill only, never authoritative)
-  async searchExternalMedicines(query: string): Promise<ExternalMedicineSuggestion[]> {
+  async searchExternalMedicines(
+    query: string,
+  ): Promise<ExternalMedicineSuggestion[]> {
     const q = query.trim();
     if (q.length < 3) return [];
 

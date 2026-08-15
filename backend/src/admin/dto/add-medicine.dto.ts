@@ -2,14 +2,14 @@ import { IsString } from 'class-validator';
 
 export class AddMedicineDto {
   @IsString()
-  name: string;
+  name?: string;
 
   @IsString()
-  type: string;
+  type?: string;
 
   @IsString()
-  strength: string;
+  strength?: string;
 
   @IsString()
-  manufacturerName: string;
+  manufacturerName?: string;
 }

@@ -1,4 +1,10 @@
-import { IsArray, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { DayOfWeek } from '../../entities/chamber.entity';
 
 export class UpdateChamberDto {

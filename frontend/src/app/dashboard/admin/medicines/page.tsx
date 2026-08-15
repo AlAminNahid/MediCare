@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Pill, Plus, Trash2, X, Check, Search, Pencil } from 'lucide-react';
-import { api } from '@/services';
-import ConfirmModal from '@/components/ui/ConfirmModal';
-import { useDebouncedSearch } from '@/hooks/useDebouncedSearch';
-import type { Medicine } from '@/types';
+import { useEffect, useState } from "react";
+import { Pill, Plus, Trash2, X, Check, Search, Pencil } from "lucide-react";
+import { api } from "@/services";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import type { Medicine } from "@/types";
 
 interface ExternalMedicineSuggestion {
   name: string;
@@ -14,7 +14,7 @@ interface ExternalMedicineSuggestion {
   dosage: string;
 }
 
-const emptyForm = { name: '', type: '', strength: '', manufacturerName: '' };
+const emptyForm = { name: "", type: "", strength: "", manufacturerName: "" };
 
 export default function AdminMedicinesPage() {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
@@ -25,7 +25,7 @@ export default function AdminMedicinesPage() {
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // External medicine lookup typeahead (search-and-prefill only)
   const {
@@ -35,7 +35,10 @@ export default function AdminMedicinesPage() {
     search: searchExternal,
     reset: resetSuggestions,
   } = useDebouncedSearch<ExternalMedicineSuggestion>(
-    (q) => api.admin.searchExternalMedicines(q) as Promise<ExternalMedicineSuggestion[]>,
+    (q) =>
+      api.admin.searchExternalMedicines(q) as Promise<
+        ExternalMedicineSuggestion[]
+      >,
     { minLength: 3 },
   );
 
@@ -59,36 +62,46 @@ export default function AdminMedicinesPage() {
   const closeModal = () => {
     setShowAdd(false);
     setEditingId(null);
-    setError('');
+    setError("");
     setForm(emptyForm);
     resetSuggestions();
   };
 
   const openEdit = (m: Medicine) => {
     setEditingId(m.medicineId);
-    setForm({ name: m.name, type: m.type, strength: m.strength, manufacturerName: m.manufacturerName });
-    setError('');
+    setForm({
+      name: m.name,
+      type: m.type,
+      strength: m.strength,
+      manufacturerName: m.manufacturerName,
+    });
+    setError("");
     setShowAdd(true);
   };
 
   const handleSave = async () => {
     if (!form.name || !form.type || !form.strength || !form.manufacturerName) {
-      setError('All fields are required');
+      setError("All fields are required");
       return;
     }
     setSaving(true);
-    setError('');
+    setError("");
     try {
       if (editingId !== null) {
-        const updated = await api.admin.updateMedicine(editingId, form) as Medicine;
-        setMedicines((prev) => prev.map((m) => (m.medicineId === editingId ? updated : m)));
+        const updated = (await api.admin.updateMedicine(
+          editingId,
+          form,
+        )) as Medicine;
+        setMedicines((prev) =>
+          prev.map((m) => (m.medicineId === editingId ? updated : m)),
+        );
       } else {
-        const added = await api.admin.addMedicine(form) as Medicine;
+        const added = (await api.admin.addMedicine(form)) as Medicine;
         setMedicines((prev) => [...prev, added]);
       }
       closeModal();
     } catch (err: unknown) {
-      setError((err as Error).message || 'Failed to save medicine');
+      setError((err as Error).message || "Failed to save medicine");
     } finally {
       setSaving(false);
     }
@@ -113,7 +126,9 @@ export default function AdminMedicinesPage() {
           <Pill className="h-6 w-6 text-indigo-600" />
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Medicines</h1>
-            <p className="text-sm text-slate-500">Reference list used when writing prescriptions</p>
+            <p className="text-sm text-slate-500">
+              Reference list used when writing prescriptions
+            </p>
           </div>
         </div>
         <button
@@ -130,13 +145,27 @@ export default function AdminMedicinesPage() {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
           </div>
         ) : medicines.length === 0 ? (
-          <div className="py-16 text-center text-slate-400">No medicines yet. Add your first one.</div>
+          <div className="py-16 text-center text-slate-400">
+            No medicines yet. Add your first one.
+          </div>
         ) : (
           <table className="w-full text-sm">
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
-                {['#', 'Name', 'Type', 'Strength', 'Manufacturer', 'Actions'].map((h) => (
-                  <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">{h}</th>
+                {[
+                  "#",
+                  "Name",
+                  "Type",
+                  "Strength",
+                  "Manufacturer",
+                  "Actions",
+                ].map((h) => (
+                  <th
+                    key={h}
+                    className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500"
+                  >
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -144,16 +173,26 @@ export default function AdminMedicinesPage() {
               {medicines.map((m, i) => (
                 <tr key={m.medicineId} className="hover:bg-slate-50">
                   <td className="px-5 py-4 text-slate-400">{i + 1}</td>
-                  <td className="px-5 py-4 font-medium text-slate-900">{m.name}</td>
+                  <td className="px-5 py-4 font-medium text-slate-900">
+                    {m.name}
+                  </td>
                   <td className="px-5 py-4 text-slate-600">{m.type}</td>
                   <td className="px-5 py-4 text-slate-600">{m.strength}</td>
-                  <td className="px-5 py-4 text-slate-600">{m.manufacturerName}</td>
+                  <td className="px-5 py-4 text-slate-600">
+                    {m.manufacturerName}
+                  </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => openEdit(m)} className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600">
+                      <button
+                        onClick={() => openEdit(m)}
+                        className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600"
+                      >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
-                      <button onClick={() => setDeleteId(m.medicineId)} className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-red-500 hover:border-red-300 hover:bg-red-50">
+                      <button
+                        onClick={() => setDeleteId(m.medicineId)}
+                        className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-red-500 hover:border-red-300 hover:bg-red-50"
+                      >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
@@ -170,20 +209,35 @@ export default function AdminMedicinesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-              <h2 className="font-semibold text-slate-900">{editingId !== null ? 'Edit Medicine' : 'Add Medicine'}</h2>
-              <button onClick={closeModal} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"><X className="h-4 w-4" /></button>
+              <h2 className="font-semibold text-slate-900">
+                {editingId !== null ? "Edit Medicine" : "Add Medicine"}
+              </h2>
+              <button
+                onClick={closeModal}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
             <div className="space-y-4 p-6">
-              {error && <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">{error}</div>}
+              {error && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">
+                  {error}
+                </div>
+              )}
 
               <div className="relative">
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Medicine Name</label>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Medicine Name
+                </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                   <input
                     value={form.name}
                     onChange={(e) => handleNameChange(e.target.value)}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    onBlur={() =>
+                      setTimeout(() => setShowSuggestions(false), 200)
+                    }
                     placeholder="e.g. Paracetamol"
                     className="w-full rounded-lg border border-slate-300 py-2.5 pl-8 pr-3.5 text-sm placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   />
@@ -199,8 +253,12 @@ export default function AdminMedicinesPage() {
                       >
                         <Pill className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-indigo-400" />
                         <div>
-                          <p className="text-sm font-medium text-slate-800">{sug.name}</p>
-                          <p className="text-xs text-slate-400">{sug.generic} · {sug.company}</p>
+                          <p className="text-sm font-medium text-slate-800">
+                            {sug.name}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {sug.generic} · {sug.company}
+                          </p>
                         </div>
                       </button>
                     ))}
@@ -209,15 +267,31 @@ export default function AdminMedicinesPage() {
               </div>
 
               {[
-                { label: 'Type', key: 'type', placeholder: 'e.g. Tablet, Capsule, Syrup' },
-                { label: 'Strength', key: 'strength', placeholder: 'e.g. 500mg' },
-                { label: 'Manufacturer', key: 'manufacturerName', placeholder: 'e.g. Square Pharmaceuticals' },
+                {
+                  label: "Type",
+                  key: "type",
+                  placeholder: "e.g. Tablet, Capsule, Syrup",
+                },
+                {
+                  label: "Strength",
+                  key: "strength",
+                  placeholder: "e.g. 500mg",
+                },
+                {
+                  label: "Manufacturer",
+                  key: "manufacturerName",
+                  placeholder: "e.g. Square Pharmaceuticals",
+                },
               ].map(({ label, key, placeholder }) => (
                 <div key={key}>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">{label}</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    {label}
+                  </label>
                   <input
                     value={(form as Record<string, string>)[key]}
-                    onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, [key]: e.target.value })
+                    }
                     placeholder={placeholder}
                     className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   />
@@ -225,10 +299,23 @@ export default function AdminMedicinesPage() {
               ))}
             </div>
             <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4">
-              <button onClick={closeModal} className="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">Cancel</button>
-              <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
+              <button
+                onClick={closeModal}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+              >
                 <Check className="h-4 w-4" />
-                {saving ? 'Saving...' : editingId !== null ? 'Save Changes' : 'Add Medicine'}
+                {saving
+                  ? "Saving..."
+                  : editingId !== null
+                    ? "Save Changes"
+                    : "Add Medicine"}
               </button>
             </div>
           </div>

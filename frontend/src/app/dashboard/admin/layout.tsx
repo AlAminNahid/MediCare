@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import DashboardLayout from '@/components/layouts/DashboardLayout';
+import DashboardLayout from "@/components/layouts/DashboardLayout";
 import {
   LayoutDashboard,
   Stethoscope,
@@ -10,22 +10,62 @@ import {
   HardDrive,
   Settings,
   MessageSquare,
-} from 'lucide-react';
+} from "lucide-react";
 
 const navItems = [
-  { label: 'Dashboard', href: '/dashboard/admin', icon: <LayoutDashboard className="h-4 w-4" /> },
-  { label: 'Doctors', href: '/dashboard/admin/doctors', icon: <Stethoscope className="h-4 w-4" /> },
-  { label: 'Patients', href: '/dashboard/admin/patients', icon: <Users className="h-4 w-4" /> },
-  { label: 'Appointments', href: '/dashboard/admin/appointments', icon: <CalendarDays className="h-4 w-4" /> },
-  { label: 'Medicines', href: '/dashboard/admin/medicines', icon: <Pill className="h-4 w-4" /> },
-  { label: 'Feedback', href: '/dashboard/admin/feedback', icon: <MessageSquare className="h-4 w-4" /> },
-  { label: 'Backups', href: '/dashboard/admin/backups', icon: <HardDrive className="h-4 w-4" /> },
-  { label: 'Settings', href: '/dashboard/admin/settings', icon: <Settings className="h-4 w-4" /> },
+  {
+    label: "Dashboard",
+    href: "/dashboard/admin",
+    icon: <LayoutDashboard className="h-4 w-4" />,
+  },
+  {
+    label: "Doctors",
+    href: "/dashboard/admin/doctors",
+    icon: <Stethoscope className="h-4 w-4" />,
+  },
+  {
+    label: "Patients",
+    href: "/dashboard/admin/patients",
+    icon: <Users className="h-4 w-4" />,
+  },
+  {
+    label: "Appointments",
+    href: "/dashboard/admin/appointments",
+    icon: <CalendarDays className="h-4 w-4" />,
+  },
+  {
+    label: "Medicines",
+    href: "/dashboard/admin/medicines",
+    icon: <Pill className="h-4 w-4" />,
+  },
+  {
+    label: "Feedback",
+    href: "/dashboard/admin/feedback",
+    icon: <MessageSquare className="h-4 w-4" />,
+  },
+  {
+    label: "Backups",
+    href: "/dashboard/admin/backups",
+    icon: <HardDrive className="h-4 w-4" />,
+  },
+  {
+    label: "Settings",
+    href: "/dashboard/admin/settings",
+    icon: <Settings className="h-4 w-4" />,
+  },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <DashboardLayout requiredRole="admin" navItems={navItems} roleLabel="Admin Portal">
+    <DashboardLayout
+      requiredRole="admin"
+      navItems={navItems}
+      roleLabel="Admin Portal"
+    >
       {children}
     </DashboardLayout>
   );

@@ -1,22 +1,28 @@
-import { IsArray, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { DayOfWeek } from '../../entities/chamber.entity';
 
 export class CreateChamberDto {
   @IsString()
-  name: string;
+  name?: string;
 
   @IsString()
-  address: string;
+  address?: string;
 
   @IsArray()
   @IsEnum(DayOfWeek, { each: true })
-  days: DayOfWeek[];
+  days?: DayOfWeek[];
 
   @IsString()
-  startTime: string;
+  startTime?: string;
 
   @IsString()
-  endTime: string;
+  endTime?: string;
 
   @IsOptional()
   @IsNumber()

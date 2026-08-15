@@ -88,7 +88,10 @@ export class DoctorController {
   }
 
   @Post('feedback')
-  submitFeedback(@Request() req, @Body() body: { subject: string; message: string }) {
+  submitFeedback(
+    @Request() req,
+    @Body() body: { subject: string; message: string },
+  ) {
     return this.doctorService.submitFeedback(req.user.doctorId, body);
   }
 }

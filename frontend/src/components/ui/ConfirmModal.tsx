@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from "lucide-react";
 
 interface ConfirmModalProps {
   title: string;
@@ -11,7 +11,14 @@ interface ConfirmModalProps {
   onCancel: () => void;
 }
 
-export default function ConfirmModal({ title, message, confirmLabel = 'Delete', loading, onConfirm, onCancel }: ConfirmModalProps) {
+export default function ConfirmModal({
+  title,
+  message,
+  confirmLabel = "Delete",
+  loading,
+  onConfirm,
+  onCancel,
+}: ConfirmModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="w-full max-w-sm rounded-2xl bg-white shadow-xl">
@@ -35,7 +42,7 @@ export default function ConfirmModal({ title, message, confirmLabel = 'Delete', 
             disabled={loading}
             className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-60"
           >
-            {loading ? 'Deleting...' : confirmLabel}
+            {loading ? "Deleting..." : confirmLabel}
           </button>
         </div>
       </div>

@@ -32,7 +32,12 @@ export interface Chamber {
   visitFee: number;
 }
 
-export type AppointmentStatus = 'Waiting' | 'Serving' | 'Done' | 'Cancelled' | 'No Show';
+export type AppointmentStatus =
+  | "Waiting"
+  | "Serving"
+  | "Done"
+  | "Cancelled"
+  | "No Show";
 
 export interface Appointment {
   appointmentId: number;
@@ -81,10 +86,10 @@ export interface Prescription {
 
 export interface Feedback {
   feedbackId: number;
-  senderRole: 'doctor' | 'patient';
+  senderRole: "doctor" | "patient";
   subject: string;
   message: string;
-  status: 'pending' | 'reviewed';
+  status: "pending" | "reviewed";
   createdAt: string;
   doctor?: { fullName: string };
   patient?: { fullName: string };

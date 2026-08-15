@@ -1,22 +1,30 @@
-'use client';
+"use client";
 
-import { useRef } from 'react';
-import { Building2, Calendar, Pencil, Printer } from 'lucide-react';
-import type { Prescription } from '@/types';
+import { useRef } from "react";
+import { Building2, Calendar, Pencil, Printer } from "lucide-react";
+import type { Prescription } from "@/types";
 
-export default function PrescriptionSlip({ rx, onEdit }: { rx: Prescription; onEdit?: () => void }) {
-  const degrees = Array.isArray(rx.doctor?.degrees) ? rx.doctor.degrees.map((d) => d.degree).join(', ') : '';
+export default function PrescriptionSlip({
+  rx,
+  onEdit,
+}: {
+  rx: Prescription;
+  onEdit?: () => void;
+}) {
+  const degrees = Array.isArray(rx.doctor?.degrees)
+    ? rx.doctor.degrees.map((d) => d.degree).join(", ")
+    : "";
   const slipRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = () => {
-    slipRef.current?.classList.add('rx-print-target');
-    document.body.classList.add('printing-rx');
+    slipRef.current?.classList.add("rx-print-target");
+    document.body.classList.add("printing-rx");
     const cleanup = () => {
-      document.body.classList.remove('printing-rx');
-      slipRef.current?.classList.remove('rx-print-target');
-      window.removeEventListener('afterprint', cleanup);
+      document.body.classList.remove("printing-rx");
+      slipRef.current?.classList.remove("rx-print-target");
+      window.removeEventListener("afterprint", cleanup);
     };
-    window.addEventListener('afterprint', cleanup);
+    window.addEventListener("afterprint", cleanup);
     window.print();
   };
 
@@ -30,9 +38,15 @@ export default function PrescriptionSlip({ rx, onEdit }: { rx: Prescription; onE
         <div className="flex items-start justify-between">
           <div>
             <p className="text-xl font-bold">{rx.doctor?.fullName}</p>
-            {degrees && <p className="mt-0.5 text-sm text-indigo-200 print:text-slate-600">{degrees}</p>}
+            {degrees && (
+              <p className="mt-0.5 text-sm text-indigo-200 print:text-slate-600">
+                {degrees}
+              </p>
+            )}
             {rx.doctor?.specialization && (
-              <p className="mt-0.5 text-sm text-indigo-200 print:text-slate-600">{rx.doctor.specialization}</p>
+              <p className="mt-0.5 text-sm text-indigo-200 print:text-slate-600">
+                {rx.doctor.specialization}
+              </p>
             )}
           </div>
           <div className="text-right">
@@ -42,7 +56,9 @@ export default function PrescriptionSlip({ rx, onEdit }: { rx: Prescription; onE
                   <Building2 className="h-4 w-4" />
                   {rx.chamber.name}
                 </p>
-                <p className="mt-0.5 text-sm text-indigo-200 print:text-slate-600">{rx.chamber.address}</p>
+                <p className="mt-0.5 text-sm text-indigo-200 print:text-slate-600">
+                  {rx.chamber.address}
+                </p>
               </>
             )}
             <p className="mt-1 flex items-center justify-end gap-1.5 text-sm text-indigo-200 print:text-slate-600">
@@ -98,7 +114,9 @@ export default function PrescriptionSlip({ rx, onEdit }: { rx: Prescription; onE
               {rx.medicines?.map((m, i) => (
                 <tr key={i}>
                   <td className="py-2 text-slate-400">{i + 1}</td>
-                  <td className="py-2 font-medium text-slate-900">{m.medicineName}</td>
+                  <td className="py-2 font-medium text-slate-900">
+                    {m.medicineName}
+                  </td>
                   <td className="py-2 text-slate-600">{m.dosage}</td>
                   <td className="py-2 text-slate-600">{m.duration}</td>
                 </tr>
@@ -122,7 +140,9 @@ export default function PrescriptionSlip({ rx, onEdit }: { rx: Prescription; onE
         {/* Advice */}
         {rx.notes && (
           <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-slate-700 print:border-slate-300 print:bg-white">
-            <span className="font-semibold text-amber-800 print:text-slate-900">Advice: </span>
+            <span className="font-semibold text-amber-800 print:text-slate-900">
+              Advice:{" "}
+            </span>
             {rx.notes}
           </div>
         )}

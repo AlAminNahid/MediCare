@@ -1,41 +1,50 @@
-import { request } from './client';
-import { API_URL } from '@/config/env';
+import { request } from "./client";
+import { API_URL } from "@/config/env";
 
 export const adminApi = {
-  getDashboard: () => request('/admin/dashboard'),
-  getProfile: () => request('/admin/profile'),
+  getDashboard: () => request("/admin/dashboard"),
+  getProfile: () => request("/admin/profile"),
   updateProfile: (data: object) =>
-    request('/admin/profile', { method: 'PATCH', body: JSON.stringify(data) }),
+    request("/admin/profile", { method: "PATCH", body: JSON.stringify(data) }),
 
-  getDoctors: () => request('/admin/doctors'),
-  getPatients: () => request('/admin/patients'),
-  getAppointments: () => request('/admin/appointments'),
+  getDoctors: () => request("/admin/doctors"),
+  getPatients: () => request("/admin/patients"),
+  getAppointments: () => request("/admin/appointments"),
 
-  getMedicines: () => request('/admin/medicines'),
+  getMedicines: () => request("/admin/medicines"),
   addMedicine: (data: object) =>
-    request('/admin/medicines', { method: 'POST', body: JSON.stringify(data) }),
+    request("/admin/medicines", { method: "POST", body: JSON.stringify(data) }),
   updateMedicine: (id: number, data: object) =>
-    request(`/admin/medicines/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  deleteMedicine: (id: number) => request(`/admin/medicines/${id}`, { method: 'DELETE' }),
+    request(`/admin/medicines/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteMedicine: (id: number) =>
+    request(`/admin/medicines/${id}`, { method: "DELETE" }),
   searchExternalMedicines: (q: string) =>
     request(`/admin/medicines/external-search?q=${encodeURIComponent(q)}`),
 
-  getBackups: () => request('/admin/backups'),
+  getBackups: () => request("/admin/backups"),
   createBackup: (fileName: string) =>
-    request('/admin/backups', { method: 'POST', body: JSON.stringify({ fileName }) }),
-  deleteBackup: (id: number) => request(`/admin/backups/${id}`, { method: 'DELETE' }),
+    request("/admin/backups", {
+      method: "POST",
+      body: JSON.stringify({ fileName }),
+    }),
+  deleteBackup: (id: number) =>
+    request(`/admin/backups/${id}`, { method: "DELETE" }),
   downloadBackup: async () => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const res = await fetch(`${API_URL}/api/admin/backups/download`, {
       headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     });
-    if (!res.ok) throw new Error('Failed to generate backup');
+    if (!res.ok) throw new Error("Failed to generate backup");
     const blob = await res.blob();
-    const disposition = res.headers.get('Content-Disposition') || '';
+    const disposition = res.headers.get("Content-Disposition") || "";
     const match = disposition.match(/filename="(.+?)"/);
     const fileName = match ? match[1] : `backup_${Date.now()}.sql`;
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = fileName;
     a.click();
@@ -43,7 +52,7 @@ export const adminApi = {
     return fileName;
   },
 
-  getFeedbacks: () => request('/admin/feedback'),
+  getFeedbacks: () => request("/admin/feedback"),
   markFeedbackReviewed: (id: number) =>
-    request(`/admin/feedback/${id}/reviewed`, { method: 'PATCH' }),
+    request(`/admin/feedback/${id}/reviewed`, { method: "PATCH" }),
 };

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { HardDrive, Plus, Trash2, Download } from 'lucide-react';
-import { api } from '@/services';
-import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useEffect, useState } from "react";
+import { HardDrive, Plus, Trash2, Download } from "lucide-react";
+import { api } from "@/services";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 interface Backup {
   backupId: number;
@@ -16,7 +16,7 @@ export default function AdminBackupsPage() {
   const [backups, setBackups] = useState<Backup[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -29,15 +29,15 @@ export default function AdminBackupsPage() {
 
   const handleCreate = async () => {
     setCreating(true);
-    setError('');
+    setError("");
     try {
       // Download the .sql file — the filename comes from the Content-Disposition header
       const fileName = await api.admin.downloadBackup();
       // Log the backup record
-      const added = await api.admin.createBackup(fileName) as Backup;
+      const added = (await api.admin.createBackup(fileName)) as Backup;
       setBackups((prev) => [added, ...prev]);
     } catch (err: unknown) {
-      setError((err as Error).message || 'Failed to create backup');
+      setError((err as Error).message || "Failed to create backup");
     } finally {
       setCreating(false);
     }
@@ -56,9 +56,12 @@ export default function AdminBackupsPage() {
   };
 
   const fmt = (dt: string) =>
-    new Date(dt).toLocaleString('en-US', {
-      year: 'numeric', month: 'short', day: 'numeric',
-      hour: '2-digit', minute: '2-digit',
+    new Date(dt).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
   return (
@@ -68,7 +71,9 @@ export default function AdminBackupsPage() {
           <HardDrive className="h-6 w-6 text-indigo-600" />
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Backups</h1>
-            <p className="text-sm text-slate-500">Download a full SQL dump of the database</p>
+            <p className="text-sm text-slate-500">
+              Download a full SQL dump of the database
+            </p>
           </div>
         </div>
         <button
@@ -91,14 +96,21 @@ export default function AdminBackupsPage() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </div>
       )}
 
       {/* Info banner */}
       <div className="mb-6 flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
         <Download className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
         <p className="text-sm text-blue-700">
-          Clicking <strong>Create Backup</strong> generates a full SQL dump of all tables and downloads it as a <code className="rounded bg-blue-100 px-1 font-mono text-xs">.sql</code> file. Each backup is also logged below.
+          Clicking <strong>Create Backup</strong> generates a full SQL dump of
+          all tables and downloads it as a{" "}
+          <code className="rounded bg-blue-100 px-1 font-mono text-xs">
+            .sql
+          </code>{" "}
+          file. Each backup is also logged below.
         </p>
       </div>
 
@@ -108,22 +120,35 @@ export default function AdminBackupsPage() {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
           </div>
         ) : backups.length === 0 ? (
-          <div className="py-16 text-center text-slate-400">No backups yet. Create your first one.</div>
+          <div className="py-16 text-center text-slate-400">
+            No backups yet. Create your first one.
+          </div>
         ) : (
           <table className="w-full text-sm">
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
-                {['#', 'File Name', 'Created At', 'Created By', 'Actions'].map((h) => (
-                  <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">{h}</th>
-                ))}
+                {["#", "File Name", "Created At", "Created By", "Actions"].map(
+                  (h) => (
+                    <th
+                      key={h}
+                      className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500"
+                    >
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {backups.map((b, i) => (
                 <tr key={b.backupId} className="hover:bg-slate-50">
                   <td className="px-5 py-4 text-slate-400">{i + 1}</td>
-                  <td className="px-5 py-4 font-mono text-xs text-slate-700">{b.fileName}</td>
-                  <td className="px-5 py-4 text-slate-600">{fmt(b.createdAt)}</td>
+                  <td className="px-5 py-4 font-mono text-xs text-slate-700">
+                    {b.fileName}
+                  </td>
+                  <td className="px-5 py-4 text-slate-600">
+                    {fmt(b.createdAt)}
+                  </td>
                   <td className="px-5 py-4 text-slate-600">{b.createdBy}</td>
                   <td className="px-5 py-4">
                     <button

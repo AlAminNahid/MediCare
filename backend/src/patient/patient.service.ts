@@ -16,10 +16,12 @@ import { BookAppointmentDto } from './dto/book-appointment.dto';
 export class PatientService {
   constructor(
     @InjectRepository(Patient) private patientRepo: Repository<Patient>,
-    @InjectRepository(Appointment) private appointmentRepo: Repository<Appointment>,
+    @InjectRepository(Appointment)
+    private appointmentRepo: Repository<Appointment>,
     @InjectRepository(Doctor) private doctorRepo: Repository<Doctor>,
     @InjectRepository(Chamber) private chamberRepo: Repository<Chamber>,
-    @InjectRepository(Prescription) private prescriptionRepo: Repository<Prescription>,
+    @InjectRepository(Prescription)
+    private prescriptionRepo: Repository<Prescription>,
     @InjectRepository(Login) private loginRepo: Repository<Login>,
     @InjectRepository(Feedback) private feedbackRepo: Repository<Feedback>,
   ) {}
@@ -67,7 +69,9 @@ export class PatientService {
   }
 
   async bookAppointment(patientId: number, dto: BookAppointmentDto) {
-    const chamber = await this.chamberRepo.findOne({ where: { chamberId: dto.chamberId } });
+    const chamber = await this.chamberRepo.findOne({
+      where: { chamberId: dto.chamberId },
+    });
     if (!chamber) throw new NotFoundException('Chamber not found');
 
     for (let attempt = 0; attempt < 5; attempt++) {
@@ -117,7 +121,10 @@ export class PatientService {
     });
   }
 
-  async submitFeedback(patientId: number, dto: { subject: string; message: string }) {
+  async submitFeedback(
+    patientId: number,
+    dto: { subject: string; message: string },
+  ) {
     const feedback = this.feedbackRepo.create({
       senderRole: FeedbackSenderRole.PATIENT,
       patientId,

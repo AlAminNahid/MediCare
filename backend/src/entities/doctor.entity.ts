@@ -19,7 +19,13 @@ export class Doctor {
   @Column({ length: 100, nullable: true })
   specialization: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true, transformer: decimalTransformer })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    transformer: decimalTransformer,
+  })
   visitFee: number;
 
   @Column({ type: 'text', nullable: true, transformer: degreesTransformer })

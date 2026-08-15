@@ -11,10 +11,10 @@ import {
 
 class DegreeDto {
   @IsString()
-  degree: string;
+  degree?: string;
 
   @IsString()
-  institution: string;
+  institution?: string;
 }
 
 export class UpdateDoctorProfileDto {

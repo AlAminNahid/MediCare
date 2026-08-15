@@ -1,7 +1,7 @@
-import { authApi } from './auth.api';
-import { adminApi } from './admin.api';
-import { doctorApi } from './doctor.api';
-import { patientApi } from './patient.api';
+import { authApi } from "./auth.api";
+import { adminApi } from "./admin.api";
+import { doctorApi } from "./doctor.api";
+import { patientApi } from "./patient.api";
 
 export const api = {
   ...authApi,
@@ -10,4 +10,4 @@ export const api = {
   patient: patientApi,
 };
 
-export { request } from './client';
+export { request } from "./client";

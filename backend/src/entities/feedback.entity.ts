@@ -39,7 +39,11 @@ export class Feedback {
   @Column({ type: 'text' })
   message: string;
 
-  @Column({ type: 'enum', enum: FeedbackStatus, default: FeedbackStatus.PENDING })
+  @Column({
+    type: 'enum',
+    enum: FeedbackStatus,
+    default: FeedbackStatus.PENDING,
+  })
   status: FeedbackStatus;
 
   @CreateDateColumn()

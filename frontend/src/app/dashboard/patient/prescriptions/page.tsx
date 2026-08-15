@@ -1,17 +1,20 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { FileText } from 'lucide-react';
-import { api } from '@/services';
-import type { Prescription } from '@/types';
-import PrescriptionSlip from '@/components/features/prescriptions/PrescriptionSlip';
+import { useEffect, useState } from "react";
+import { FileText } from "lucide-react";
+import { api } from "@/services";
+import type { Prescription } from "@/types";
+import PrescriptionSlip from "@/components/features/prescriptions/PrescriptionSlip";
 
 export default function PatientPrescriptionsPage() {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.patient.getPrescriptions().then((d) => setPrescriptions(d as Prescription[])).finally(() => setLoading(false));
+    api.patient
+      .getPrescriptions()
+      .then((d) => setPrescriptions(d as Prescription[]))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -19,8 +22,12 @@ export default function PatientPrescriptionsPage() {
       <div className="mb-6 flex items-center gap-3">
         <FileText className="h-6 w-6 text-indigo-600" />
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Prescriptions</h1>
-          <p className="text-sm text-slate-500">Digital prescriptions from your doctors</p>
+          <h1 className="text-2xl font-bold text-slate-900">
+            My Prescriptions
+          </h1>
+          <p className="text-sm text-slate-500">
+            Digital prescriptions from your doctors
+          </p>
         </div>
       </div>
 

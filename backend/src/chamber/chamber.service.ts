@@ -20,15 +20,23 @@ export class ChamberService {
     return this.chamberRepo.save(chamber);
   }
 
-  async updateChamber(chamberId: number, doctorId: number, dto: UpdateChamberDto) {
-    const chamber = await this.chamberRepo.findOne({ where: { chamberId, doctorId } });
+  async updateChamber(
+    chamberId: number,
+    doctorId: number,
+    dto: UpdateChamberDto,
+  ) {
+    const chamber = await this.chamberRepo.findOne({
+      where: { chamberId, doctorId },
+    });
     if (!chamber) throw new NotFoundException('Chamber not found');
     Object.assign(chamber, dto);
     return this.chamberRepo.save(chamber);
   }
 
   async deleteChamber(chamberId: number, doctorId: number) {
-    const chamber = await this.chamberRepo.findOne({ where: { chamberId, doctorId } });
+    const chamber = await this.chamberRepo.findOne({
+      where: { chamberId, doctorId },
+    });
     if (!chamber) throw new NotFoundException('Chamber not found');
     await this.chamberRepo.remove(chamber);
     return { message: 'Chamber deleted' };

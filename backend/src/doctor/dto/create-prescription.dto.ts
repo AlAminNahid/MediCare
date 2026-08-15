@@ -1,27 +1,34 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsDateString, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export class PrescriptionMedicineDto {
   @IsString()
-  medicineName: string;
+  medicineName?: string;
 
   @IsString()
-  dosage: string;
+  dosage?: string;
 
   @IsString()
-  duration: string;
+  duration?: string;
 }
 
 export class CreatePrescriptionDto {
   @IsNumber()
-  patientId: number;
+  patientId?: number;
 
   @IsNumber()
   @IsOptional()
   chamberId?: number;
 
   @IsDateString()
-  date: string;
+  date?: string;
 
   @IsString()
   @IsOptional()
@@ -39,5 +46,5 @@ export class CreatePrescriptionDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => PrescriptionMedicineDto)
-  medicines: PrescriptionMedicineDto[];
+  medicines?: PrescriptionMedicineDto[];
 }

@@ -65,7 +65,10 @@ export class PatientController {
   }
 
   @Post('feedback')
-  submitFeedback(@Request() req, @Body() body: { subject: string; message: string }) {
+  submitFeedback(
+    @Request() req,
+    @Body() body: { subject: string; message: string },
+  ) {
     return this.patientService.submitFeedback(req.user.patientId, body);
   }
 }

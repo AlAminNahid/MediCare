@@ -34,7 +34,10 @@ import { Feedback } from './entities/feedback.entity';
         port: configService.get<number>('DB_PORT', 5432),
         username: configService.get<string>('DB_USER', 'admin'),
         password: configService.get<string>('DB_PASSWORD', 'root'),
-        database: configService.get<string>('DB_NAME', 'chamber_management_system'),
+        database: configService.get<string>(
+          'DB_NAME',
+          'chamber_management_system',
+        ),
         entities: [
           Admin,
           Doctor,

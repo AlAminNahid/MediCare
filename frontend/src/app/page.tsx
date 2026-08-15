@@ -1,26 +1,26 @@
-import Link from 'next/link';
-import { Activity, Building2, Calendar, FileText, Shield } from 'lucide-react';
+import Link from "next/link";
+import { Activity, Building2, Calendar, FileText, Shield } from "lucide-react";
 
 const features = [
   {
     icon: <Building2 className="h-6 w-6 text-indigo-600" />,
-    title: 'Multi-Chamber Support',
-    desc: 'Run one or more chambers with their own address, schedule, and visit fee.',
+    title: "Multi-Chamber Support",
+    desc: "Run one or more chambers with their own address, schedule, and visit fee.",
   },
   {
     icon: <Calendar className="h-6 w-6 text-indigo-600" />,
-    title: 'Serial-Based Booking',
-    desc: 'Patients book online and get the next daily serial number — no fixed time slots, no double-booking.',
+    title: "Serial-Based Booking",
+    desc: "Patients book online and get the next daily serial number — no fixed time slots, no double-booking.",
   },
   {
     icon: <FileText className="h-6 w-6 text-indigo-600" />,
-    title: 'Digital Prescriptions',
-    desc: 'Issue and store prescriptions digitally with medicine dosage details.',
+    title: "Digital Prescriptions",
+    desc: "Issue and store prescriptions digitally with medicine dosage details.",
   },
   {
     icon: <Shield className="h-6 w-6 text-indigo-600" />,
-    title: 'Role-Based Access',
-    desc: 'Separate portals for admins, doctors, and patients with proper permissions.',
+    title: "Role-Based Access",
+    desc: "Separate portals for admins, doctors, and patients with proper permissions.",
   },
 ];
 
@@ -60,11 +60,13 @@ export default function Home() {
           Medical Chamber Management System
         </div>
         <h1 className="mx-auto max-w-3xl text-5xl font-extrabold tracking-tight text-slate-900">
-          Modern healthcare management,{' '}
+          Modern healthcare management,{" "}
           <span className="text-indigo-600">simplified</span>
         </h1>
         <p className="mx-auto mt-6 max-w-xl text-lg text-slate-500">
-          MediCare brings doctors, patients, and administrators together on one intuitive platform — from chamber scheduling and serial-based bookings to digital prescriptions.
+          MediCare brings doctors, patients, and administrators together on one
+          intuitive platform — from chamber scheduling and serial-based bookings
+          to digital prescriptions.
         </p>
         <div className="mt-10 flex gap-4">
           <Link
@@ -86,12 +88,19 @@ export default function Home() {
       <section className="bg-white px-6 py-20">
         <div className="mx-auto max-w-6xl">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold text-slate-900">Everything you need to run a chamber</h2>
-            <p className="mt-3 text-slate-500">Powerful features for every role in your healthcare team.</p>
+            <h2 className="text-3xl font-bold text-slate-900">
+              Everything you need to run a chamber
+            </h2>
+            <p className="mt-3 text-slate-500">
+              Powerful features for every role in your healthcare team.
+            </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {features.map(({ icon, title, desc }) => (
-              <div key={title} className="rounded-2xl border border-slate-100 bg-slate-50 p-6 transition hover:border-indigo-200 hover:shadow-sm">
+              <div
+                key={title}
+                className="rounded-2xl border border-slate-100 bg-slate-50 p-6 transition hover:border-indigo-200 hover:shadow-sm"
+              >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50">
                   {icon}
                 </div>
@@ -105,8 +114,12 @@ export default function Home() {
 
       {/* CTA */}
       <section className="bg-indigo-600 px-6 py-16 text-center">
-        <h2 className="text-3xl font-bold text-white">Ready to modernize your chamber?</h2>
-        <p className="mt-3 text-indigo-200">Join hundreds of chambers already using MediCare.</p>
+        <h2 className="text-3xl font-bold text-white">
+          Ready to modernize your chamber?
+        </h2>
+        <p className="mt-3 text-indigo-200">
+          Join hundreds of chambers already using MediCare.
+        </p>
         <Link
           href="/register"
           className="mt-8 inline-block rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-indigo-600 shadow-md transition hover:bg-indigo-50"
@@ -117,7 +130,8 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-slate-100 bg-white px-6 py-8 text-center text-sm text-slate-400">
-        © {new Date().getFullYear()} MediCare. Medical Chamber Management System.
+        © {new Date().getFullYear()} MediCare. Medical Chamber Management
+        System.
       </footer>
     </div>
   );

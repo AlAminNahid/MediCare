@@ -31,14 +31,20 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { refresh_token, ...body } = await this.authService.login(dto);
     this.setRefreshCookie(res, refresh_token);
     return body;
   }
 
   @Post('refresh')
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const token = req.cookies?.[REFRESH_COOKIE];
     const { refresh_token, ...body } = await this.authService.refresh(token);
     this.setRefreshCookie(res, refresh_token);

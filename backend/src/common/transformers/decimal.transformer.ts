@@ -5,5 +5,6 @@ import { ValueTransformer } from 'typeorm';
 // and DTO validation (`@IsNumber()`) see a number, not a string.
 export const decimalTransformer: ValueTransformer = {
   to: (value?: number) => value,
-  from: (value?: string) => (value === null || value === undefined ? value : parseFloat(value)),
+  from: (value?: string) =>
+    value === null || value === undefined ? value : parseFloat(value),
 };

@@ -14,6 +14,7 @@ import {
   Send,
 } from "lucide-react";
 import { api } from "@/services";
+import { changePasswordSchema } from "@/validation/settings.schema";
 import type { DoctorDegree } from "@/types";
 
 interface DoctorProfile {
@@ -128,12 +129,9 @@ export default function DoctorSettingsPage() {
   const handlePasswordSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      showMsg("Passwords do not match", true);
-      return;
-    }
-    if (passwordForm.newPassword.length < 8) {
-      showMsg("Password must be at least 8 characters", true);
+    const result = changePasswordSchema.safeParse(passwordForm);
+    if (!result.success) {
+      showMsg(result.error.issues[0]?.message ?? "Invalid password", true);
       return;
     }
     setSaving(true);
@@ -305,7 +303,8 @@ export default function DoctorSettingsPage() {
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">
                       Degrees
                     </p>
-                    {Array.isArray(profile?.degrees) && profile.degrees.length > 0 ? (
+                    {Array.isArray(profile?.degrees) &&
+                    profile.degrees.length > 0 ? (
                       <div className="space-y-1.5">
                         {profile.degrees.map((d) => (
                           <div
@@ -409,7 +408,9 @@ export default function DoctorSettingsPage() {
                               className="flex items-center justify-between gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm"
                             >
                               <span className="text-indigo-700">
-                                <span className="font-medium">{deg.degree}</span>
+                                <span className="font-medium">
+                                  {deg.degree}
+                                </span>
                                 {deg.institution && (
                                   <span className="text-indigo-500">
                                     {" "}
