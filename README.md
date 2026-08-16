@@ -37,22 +37,23 @@ MediCare/
 │       │       │   ├── appointments/
 │       │       │   ├── medicines/
 │       │       │   ├── backups/
-│       │       │   └── profile/
+│       │       │   └── settings/
 │       │       ├── doctor/                 # Doctor portal
 │       │       │   ├── appointments/       # Daily serial queue
 │       │       │   ├── patients/
 │       │       │   ├── prescriptions/
 │       │       │   ├── chambers/           # Chamber locations & schedules
-│       │       │   └── profile/
+│       │       │   └── settings/
 │       │       └── patient/                # Patient portal
 │       │           ├── book-appointment/   # Doctor → chamber → serial
 │       │           ├── appointments/
 │       │           ├── prescriptions/
-│       │           └── profile/
+│       │           ├── profile/
+│       │           └── settings/
 │       ├── components/
 │       │   └── DashboardLayout.tsx         # Shared sidebar layout
-│       └── lib/
-│           └── api/                        # API client (all endpoints)
+│       └── services/
+│           └── *.api.ts                    # API client (all endpoints)
 │
 └── backend/                # NestJS application
     └── src/
@@ -91,7 +92,7 @@ Backup         — backupId, fileName, createdAt, createdBy
 - **Appointments** — platform-wide read-only view of all bookings
 - **Medicines** — add, list, delete the shared medicine reference list
 - **Backups** — create and manage database backup records
-- **Profile** — update name, email, phone, and password
+- **Settings** — update name, email, phone, and password
 
 ### Doctor Portal
 - **Dashboard** — profile overview and quick links
@@ -115,18 +116,10 @@ Backup         — backupId, fileName, createdAt, createdBy
 ### Prerequisites
 
 - Node.js 18+
-- PostgreSQL 14+
 - npm
+- A [Neon](https://neon.tech) PostgreSQL database
 
-### 1 — Database Setup
-
-Create a PostgreSQL database:
-
-```sql
-CREATE DATABASE chamber_management_system;
-```
-
-### 2 — Backend Setup
+### 1 — Backend Setup
 
 ```bash
 cd backend
@@ -136,12 +129,19 @@ npm install
 Create a `.env` file in `backend/`:
 
 ```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=your_postgres_user
-DB_PASSWORD=your_postgres_password
-DB_NAME=chamber_management_system
+DATABASE_URL=postgresql://<user>:<password>@<host>/<db>?sslmode=require
 JWT_SECRET=your_super_secret_key
+JWT_REFRESH_SECRET=your_refresh_secret_key
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+PORT=3001
+FRONTEND_URL=http://localhost:3000
+```
+
+Then run the database migrations:
+
+```bash
+npm run migration:run
 ```
 
 Start the backend:
@@ -152,7 +152,7 @@ npm run start:dev
 
 The API runs on **http://localhost:3001**
 
-### 3 — Frontend Setup
+### 2 — Frontend Setup
 
 ```bash
 cd frontend
