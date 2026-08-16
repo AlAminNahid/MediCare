@@ -6,16 +6,16 @@ A modern, full-stack medical chamber management platform built as a SaaS web app
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 16 (App Router), React 19, Tailwind CSS v4 |
-| Backend | NestJS, TypeORM |
-| Database | PostgreSQL |
-| HTTP Client | Axios / Fetch |
-| Validation | Zod (backend DTOs) |
-| Icons | Lucide React |
-| Auth | JWT (JSON Web Tokens) |
-| Language | TypeScript |
+| Layer       | Technology                                         |
+| ----------- | -------------------------------------------------- |
+| Frontend    | Next.js 16 (App Router), React 19, Tailwind CSS v4 |
+| Backend     | NestJS, TypeORM                                    |
+| Database    | PostgreSQL                                         |
+| HTTP Client | Axios / Fetch                                      |
+| Validation  | Zod (backend DTOs)                                 |
+| Icons       | Lucide React                                       |
+| Auth        | JWT (JSON Web Tokens)                              |
+| Language    | TypeScript                                         |
 
 ---
 
@@ -86,6 +86,7 @@ Backup         — backupId, fileName, createdAt, createdBy
 ## Features
 
 ### Admin Portal
+
 - **Dashboard** — live stats (doctors, patients, chambers, appointments, medicines)
 - **Doctors** — platform-wide read-only view of registered doctors
 - **Patients** — platform-wide read-only view of registered patients
@@ -95,6 +96,7 @@ Backup         — backupId, fileName, createdAt, createdBy
 - **Settings** — update name, email, phone, and password
 
 ### Doctor Portal
+
 - **Dashboard** — profile overview and quick links
 - **Chambers** — manage the locations, days, hours, and visit fee for each chamber
 - **Appointments** — today's serial-ordered queue per chamber; call next / mark done / no-show
@@ -103,6 +105,7 @@ Backup         — backupId, fileName, createdAt, createdBy
 - **Profile** — update professional info and login credentials
 
 ### Patient Portal
+
 - **Dashboard** — personal info summary and quick links
 - **Book Appointment** — pick a doctor, pick one of their chambers, and get the next serial number for that date
 - **My Appointments** — view booking history and serial numbers, cancel active bookings
@@ -177,11 +180,11 @@ The app runs on **http://localhost:3000**
 
 ## User Roles & Default Credentials
 
-| Role | Description |
-|---|---|
-| `admin` | Platform-level oversight — read-only visibility into doctors/patients/appointments, manages medicines and backups |
-| `doctor` | Manages own chambers, appointment queue, patients, and prescriptions |
-| `patient` | Books appointments against a chamber, views prescriptions, manages profile |
+| Role      | Description                                                                                                       |
+| --------- | ----------------------------------------------------------------------------------------------------------------- |
+| `admin`   | Platform-level oversight — read-only visibility into doctors/patients/appointments, manages medicines and backups |
+| `doctor`  | Manages own chambers, appointment queue, patients, and prescriptions                                              |
+| `patient` | Books appointments against a chamber, views prescriptions, manages profile                                        |
 
 Register a new account at `/register` and select the appropriate role.
 
@@ -191,13 +194,13 @@ Register a new account at `/register` and select the appropriate role.
 
 All endpoints are prefixed with `/api`.
 
-| Module | Base Route | Key Endpoints |
-|---|---|---|
-| Auth | `/api/auth` | `POST /login`, `POST /register`, `POST /forgot-password` |
-| Admin | `/api/admin` | `/dashboard`, `/doctors`, `/patients`, `/appointments`, `/medicines`, `/backups`, `/profile` |
-| Doctor | `/api/doctor` | `/profile`, `/appointments`, `/patients`, `/prescriptions` |
-| Chamber | `/api/doctor/chambers` | CRUD for a doctor's chambers |
-| Patient | `/api/patient` | `/profile`, `/doctors`, `/doctors/:doctorId/chambers`, `/appointments`, `/prescriptions` |
+| Module  | Base Route             | Key Endpoints                                                                                |
+| ------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| Auth    | `/api/auth`            | `POST /login`, `POST /register`, `POST /forgot-password`                                     |
+| Admin   | `/api/admin`           | `/dashboard`, `/doctors`, `/patients`, `/appointments`, `/medicines`, `/backups`, `/profile` |
+| Doctor  | `/api/doctor`          | `/profile`, `/appointments`, `/patients`, `/prescriptions`                                   |
+| Chamber | `/api/doctor/chambers` | CRUD for a doctor's chambers                                                                 |
+| Patient | `/api/patient`         | `/profile`, `/doctors`, `/doctors/:doctorId/chambers`, `/appointments`, `/prescriptions`     |
 
 Protected routes require a `Bearer` token in the `Authorization` header.
 
@@ -218,9 +221,3 @@ cd frontend && npx tsc --noEmit
 # Build frontend for production
 cd frontend && npm run build
 ```
-
----
-
-## License
-
-This project was built as a university assignment for the Web Technology course (9th Semester).
