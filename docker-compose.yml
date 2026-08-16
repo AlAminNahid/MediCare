@@ -1,37 +1,17 @@
 version: "3.8"
 
 services:
-  postgres:
-    image: postgres:16
-    container_name: postgres_container_new
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: clinic_management_system
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app_network
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: backend_container
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: admin
-      DB_PASSWORD: root
-      DB_NAME: clinic_management_system
+      DATABASE_URL: postgresql://neondb_owner:npg_kFihyEVDM7W1@ep-shy-queen-aycmamse.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require
       JWT_SECRET: your_jwt_secret_change_in_production
       PORT: 3001
     ports:
       - "3001:3001"
-    depends_on:
-      - postgres
     networks:
       - app_network
     volumes:
@@ -59,6 +39,3 @@ services:
 networks:
   app_network:
     driver: bridge
-
-volumes:
-  postgres_data:

@@ -7,11 +7,13 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3001),
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
 
+  DATABASE_URL: z.string().optional(),
   DB_HOST: z.string().default('localhost'),
   DB_PORT: z.coerce.number().default(5432),
   DB_USER: z.string().default('admin'),
   DB_PASSWORD: z.string().default('root'),
   DB_NAME: z.string().default('chamber_management_system'),
+  DB_SSL: z.string().optional(),
 
   JWT_SECRET: z.string().min(16, 'JWT_SECRET must be at least 16 characters'),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),

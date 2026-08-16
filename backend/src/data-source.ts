@@ -13,7 +13,29 @@ import { Prescription } from './entities/prescription.entity';
 import { PrescriptionMedicine } from './entities/prescription_medicine.entity';
 import { Feedback } from './entities/feedback.entity';
 
-export const AppDataSource = new DataSource({
+const databaseUrl = process.env.DATABASE_URL;
+
+export const AppDataSource = new DataSource(databaseUrl ? {
+  type: 'postgres',
+  url: databaseUrl,
+  ssl: { rejectUnauthorized: false },
+  entities: [
+    Admin,
+    Doctor,
+    Patient,
+    Login,
+    Appointment,
+    Chamber,
+    Backup,
+    Medicine,
+    Prescription,
+    PrescriptionMedicine,
+    Feedback,
+  ],
+  migrations: [__dirname + '/migrations/*.{ts,js}'],
+  synchronize: false,
+  logging: false,
+} : {
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT) || 5432,
