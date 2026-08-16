@@ -28,7 +28,5 @@ export const authApi = {
       body: JSON.stringify({ email, newPassword }),
     }),
 
-  refresh: () =>
-    request<{ access_token: string }>("/auth/refresh", { method: "POST" }),
   logout: () => request("/auth/logout", { method: "POST" }),
 };

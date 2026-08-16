@@ -28,46 +28,26 @@ import { Feedback } from './entities/feedback.entity';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const databaseUrl = configService.get<string>('DATABASE_URL');
-        const base = {
-          entities: [
-            Admin,
-            Doctor,
-            Patient,
-            Login,
-            Appointment,
-            Chamber,
-            Backup,
-            Medicine,
-            Prescription,
-            PrescriptionMedicine,
-            Feedback,
-          ],
-          synchronize: false,
-          logging: false,
-        };
-        if (databaseUrl) {
-          return {
-            ...base,
-            type: 'postgres' as const,
-            url: databaseUrl,
-            ssl: { rejectUnauthorized: false },
-          };
-        }
-        return {
-          ...base,
-          type: 'postgres' as const,
-          host: configService.get<string>('DB_HOST', 'localhost'),
-          port: configService.get<number>('DB_PORT', 5432),
-          username: configService.get<string>('DB_USER', 'admin'),
-          password: configService.get<string>('DB_PASSWORD', 'root'),
-          database: configService.get<string>('DB_NAME', 'chamber_management_system'),
-          ssl: configService.get<string>('DB_SSL') === 'true'
-            ? { rejectUnauthorized: false }
-            : false,
-        };
-      },
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres' as const,
+        url: configService.get<string>('DATABASE_URL'),
+        ssl: { rejectUnauthorized: false },
+        entities: [
+          Admin,
+          Doctor,
+          Patient,
+          Login,
+          Appointment,
+          Chamber,
+          Backup,
+          Medicine,
+          Prescription,
+          PrescriptionMedicine,
+          Feedback,
+        ],
+        synchronize: false,
+        logging: false,
+      }),
     }),
     AuthModule,
     AdminModule,

@@ -13,35 +13,14 @@ import { Prescription } from './entities/prescription.entity';
 import { PrescriptionMedicine } from './entities/prescription_medicine.entity';
 import { Feedback } from './entities/feedback.entity';
 
-const databaseUrl = process.env.DATABASE_URL;
+if (!process.env.DATABASE_URL) {
+  throw new Error('Missing DATABASE_URL environment variable');
+}
 
-export const AppDataSource = new DataSource(databaseUrl ? {
+export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: databaseUrl,
+  url: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
-  entities: [
-    Admin,
-    Doctor,
-    Patient,
-    Login,
-    Appointment,
-    Chamber,
-    Backup,
-    Medicine,
-    Prescription,
-    PrescriptionMedicine,
-    Feedback,
-  ],
-  migrations: [__dirname + '/migrations/*.{ts,js}'],
-  synchronize: false,
-  logging: false,
-} : {
-  type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 5432,
-  username: process.env.DB_USER || 'admin',
-  password: process.env.DB_PASSWORD || 'root',
-  database: process.env.DB_NAME || 'chamber_management_system',
   entities: [
     Admin,
     Doctor,
